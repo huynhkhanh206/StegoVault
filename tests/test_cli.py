@@ -167,3 +167,76 @@ def test_roundtrip_with_default_real_kdf_parameters(img, tmp_path, capsys, resto
     assert run(capsys, "embed", "-i", str(img), "-o", str(out), "-m", "kdf that", "-p", PW)[0] == 0
     code, o, _ = run(capsys, "extract", "-i", str(out), "-p", PW)
     assert code == 0 and o.strip() == "kdf that"
+
+
+# ------------------------------------------------------------- nhiều file
+def _make_files(tmp_path):
+    a = tmp_path / "báo cáo.txt"; a.write_text("nội dung A " * 40, encoding="utf-8")
+    b = tmp_path / "dữ liệu.bin"; b.write_bytes(bytes(range(256)) * 3)
+    sub = tmp_path / "sub"; sub.mkdir()
+    c = sub / "báo cáo.txt"; c.write_text("trùng tên nhưng khác nội dung", encoding="utf-8")
+    return a, b, c
+
+
+def test_embed_and_extract_many_files(img, tmp_path, capsys):
+    a, b, c = _make_files(tmp_path)
+    out = tmp_path / "s.png"
+    code, o, _ = run(capsys, "embed", "-i", str(img), "-o", str(out), "-f", str(a), str(b), str(c), "-p", PW)
+    assert code == 0 and "3 file" in o
+    dest = tmp_path / "ra"
+    code, o, _ = run(capsys, "extract", "-i", str(out), "-o", str(dest), "-p", PW)
+    assert code == 0 and "3 file" in o
+    assert (dest / "báo cáo.txt").read_bytes() == a.read_bytes()
+    assert (dest / "dữ liệu.bin").read_bytes() == b.read_bytes()
+    assert (dest / "báo cáo (2).txt").read_bytes() == c.read_bytes()      # trùng tên được đánh số, không ghi đè nhau
+
+
+def test_embed_accepts_repeated_f_flags(img, tmp_path, capsys):
+    a, b, _ = _make_files(tmp_path)
+    out = tmp_path / "s.png"
+    assert run(capsys, "embed", "-i", str(img), "-o", str(out), "-f", str(a), "-f", str(b), "-p", PW)[0] == 0
+    dest = tmp_path / "ra"
+    assert run(capsys, "extract", "-i", str(out), "-o", str(dest), "-p", PW)[0] == 0
+    assert sorted(p.name for p in dest.iterdir()) == sorted([a.name, b.name])
+
+
+def test_extract_many_files_refuses_to_overwrite_without_force_and_writes_nothing(img, tmp_path, capsys):
+    a, b, _ = _make_files(tmp_path)
+    out = tmp_path / "s.png"
+    run(capsys, "embed", "-i", str(img), "-o", str(out), "-f", str(a), str(b), "-p", PW)
+    dest = tmp_path / "ra"; dest.mkdir()
+    (dest / b.name).write_bytes(b"cu")                      # chỉ file thứ hai đã tồn tại
+    code, _, e = run(capsys, "extract", "-i", str(out), "-o", str(dest), "-p", PW)
+    assert code == 1 and "--force" in e
+    assert not (dest / a.name).exists() and (dest / b.name).read_bytes() == b"cu"   # không ghi dở dang
+    assert run(capsys, "extract", "-i", str(out), "-o", str(dest), "-p", PW, "--force")[0] == 0
+    assert (dest / b.name).read_bytes() == b.read_bytes()
+
+
+def test_extract_many_files_default_folder_and_file_target_error(img, tmp_path, capsys, monkeypatch):
+    a, b, _ = _make_files(tmp_path)
+    out = tmp_path / "s.png"
+    run(capsys, "embed", "-i", str(img), "-o", str(out), "-f", str(a), str(b), "-p", PW)
+    not_a_dir = tmp_path / "la-file.txt"; not_a_dir.write_text("x")
+    code, _, e = run(capsys, "extract", "-i", str(out), "-o", str(not_a_dir), "-p", PW)
+    assert code == 1 and "thư mục" in e
+    work = tmp_path / "work"; work.mkdir(); monkeypatch.chdir(work)
+    assert run(capsys, "extract", "-i", str(out), "-p", PW)[0] == 0
+    assert sorted(p.name for p in (work / "stegovault_out").iterdir()) == sorted([a.name, b.name])
+
+
+def test_embed_rejects_mixing_message_and_files(img, tmp_path, capsys):
+    a, _, _ = _make_files(tmp_path)
+    code, _, e = run(capsys, "embed", "-i", str(img), "-m", "x", "-f", str(a), "-p", PW)
+    assert code == 1 and "đúng một nguồn" in e
+
+
+def test_hostile_names_inside_a_bundle_cannot_escape_destination(img, tmp_path, capsys):
+    from stegovault.embed import embed
+    cover = load_rgb(img)
+    res = embed(cover, [("../../escape1.txt", b"1"), ("..\\..\\escape2.txt", b"2")], PW)
+    out = tmp_path / "evil.png"; save_lossless(res.stego, out)
+    dest = tmp_path / "a" / "b"; dest.mkdir(parents=True)
+    assert run(capsys, "extract", "-i", str(out), "-o", str(dest), "-p", PW)[0] == 0
+    assert sorted(p.name for p in dest.iterdir()) == ["escape1.txt", "escape2.txt"]
+    assert not list(tmp_path.glob("escape*")) and not list((tmp_path / "a").glob("escape*"))

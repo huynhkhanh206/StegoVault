@@ -27,7 +27,7 @@ import struct
 import unicodedata
 import zlib
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Iterable, List, Optional, Tuple
 
 from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -57,6 +57,8 @@ KDFS = ("scrypt", "argon2id")
 
 KIND_TEXT = 0
 KIND_FILE = 1
+KIND_BUNDLE = 2          # nhiều file trong một gói
+MAX_FILES = 256          # số file tối đa trong một gói
 
 
 @dataclass(frozen=True)
@@ -78,13 +80,26 @@ class Payload:
     kind: int
     data: bytes
     filename: Optional[str] = None
+    files: Tuple[Tuple[str, bytes], ...] = ()   # chỉ dùng cho KIND_BUNDLE: (tên đã làm sạch, nội dung)
 
     @property
     def is_text(self) -> bool:
         return self.kind == KIND_TEXT
 
+    @property
+    def is_bundle(self) -> bool:
+        return self.kind == KIND_BUNDLE
+
     def text(self) -> str:
         return self.data.decode("utf-8", errors="replace")
+
+    def file_list(self) -> List[Tuple[str, bytes]]:
+        """Danh sách (tên, nội dung) cho mọi loại gói chứa file (rỗng nếu là tin nhắn)."""
+        if self.kind == KIND_FILE:
+            return [(self.filename or "extracted.bin", self.data)]
+        if self.kind == KIND_BUNDLE:
+            return list(self.files)
+        return []
 
 
 # --------------------------------------------------------------------------- KDF
@@ -186,14 +201,27 @@ def safe_filename(name: Optional[str], default: str = "extracted.bin") -> str:
     return name[:200]
 
 
-def pack_payload(
-    data: bytes, kind: int = KIND_TEXT, filename: Optional[str] = None, compress: bool = True
-) -> bytes:
-    """Đóng gói: [kind][cờ nén][thân]. Với file, thân = [độ dài tên (2B)][tên][dữ liệu]."""
-    body = data
-    if kind == KIND_FILE:
-        name = safe_filename(filename, "data.bin").encode("utf-8")[:1024]
-        body = struct.pack(">H", len(name)) + name + data
+def unique_names(names: Iterable[Optional[str]]) -> List[str]:
+    """Làm sạch rồi đánh số lại tên trùng ("a.txt", "a (2).txt", ...) để mỗi file có một tên riêng.
+
+    So sánh không phân biệt hoa thường vì Windows và macOS coi "A.txt" và "a.txt" là một file.
+    """
+    seen: set = set()
+    out: List[str] = []
+    for raw in names:
+        base = safe_filename(raw, "data.bin")
+        stem, ext = os.path.splitext(base)
+        cand, n = base, 1
+        while cand.casefold() in seen:
+            n += 1
+            cand = f"{stem} ({n}){ext}"
+        seen.add(cand.casefold())
+        out.append(cand)
+    return out
+
+
+def _finish(kind: int, body: bytes, compress: bool) -> bytes:
+    """Gắn tiêu đề [kind][cờ nén]; chỉ nén khi thật sự nhỏ đi."""
     compressed = 0
     if compress:
         candidate = zlib.compress(body, 9)
@@ -202,11 +230,74 @@ def pack_payload(
     return bytes([kind, compressed]) + body
 
 
+def pack_payload(
+    data: bytes, kind: int = KIND_TEXT, filename: Optional[str] = None, compress: bool = True
+) -> bytes:
+    """Đóng gói: [kind][cờ nén][thân]. Với file, thân = [độ dài tên (2B)][tên][dữ liệu]."""
+    body = data
+    if kind == KIND_FILE:
+        name = safe_filename(filename, "data.bin").encode("utf-8")[:1024]
+        body = struct.pack(">H", len(name)) + name + data
+    elif kind != KIND_TEXT:
+        raise StegoError("Loại gói không hợp lệ; dùng pack_files() cho nhiều file.")
+    return _finish(kind, body, compress)
+
+
+def pack_files(files: Iterable[Tuple[Optional[str], bytes]], compress: bool = True) -> bytes:
+    """Đóng gói một hoặc nhiều file. Một file dùng đúng định dạng KIND_FILE cũ.
+
+    Nhiều file: thân = [số file (2B)] rồi mỗi file là [độ dài tên (2B)][tên][kích thước (4B)][dữ liệu].
+    Cả gói được nén một lần, nên các file giống nhau cùng được hưởng lợi.
+    """
+    items = [(n, bytes(d)) for n, d in files]
+    if not items:
+        raise StegoError("Chưa có file nào để giấu.")
+    if len(items) > MAX_FILES:
+        raise StegoError(f"Chỉ giấu được tối đa {MAX_FILES} file một lần (đang có {len(items)}).")
+    names = unique_names(n for n, _ in items)
+    if len(items) == 1:
+        return pack_payload(items[0][1], KIND_FILE, names[0], compress)
+    parts = [struct.pack(">H", len(items))]
+    for name, (_, data) in zip(names, items):
+        raw = name.encode("utf-8")[:1024]
+        parts += [struct.pack(">H", len(raw)), raw, struct.pack(">I", len(data)), data]
+    return _finish(KIND_BUNDLE, b"".join(parts), compress)
+
+
+def _parse_bundle(body: bytes) -> List[Tuple[str, bytes]]:
+    """Đọc gói nhiều file, kiểm tra mọi biên: dữ liệu này đến từ ảnh nên không được tin."""
+    bad = DecryptionError("Gói nhiều file bị hỏng.")
+    if len(body) < 2:
+        raise bad
+    (count,) = struct.unpack(">H", body[:2])
+    if not 1 <= count <= MAX_FILES:
+        raise bad
+    pos, names, datas = 2, [], []
+    for _ in range(count):
+        if pos + 2 > len(body):
+            raise bad
+        (name_len,) = struct.unpack(">H", body[pos : pos + 2])
+        pos += 2
+        if pos + name_len + 4 > len(body):
+            raise bad
+        names.append(body[pos : pos + name_len].decode("utf-8", errors="replace"))
+        pos += name_len
+        (size,) = struct.unpack(">I", body[pos : pos + 4])
+        pos += 4
+        if pos + size > len(body):
+            raise bad
+        datas.append(body[pos : pos + size])
+        pos += size
+    if pos != len(body):
+        raise bad
+    return list(zip(unique_names(names), datas))
+
+
 def unpack_payload(blob: bytes) -> Payload:
     if len(blob) < CONTAINER_HEADER:
         raise DecryptionError("Gói dữ liệu rỗng hoặc hỏng.")
     kind, compressed, body = blob[0], blob[1], blob[2:]
-    if kind not in (KIND_TEXT, KIND_FILE) or compressed not in (0, 1):
+    if kind not in (KIND_TEXT, KIND_FILE, KIND_BUNDLE) or compressed not in (0, 1):
         raise DecryptionError("Gói dữ liệu có định dạng không hợp lệ.")
     if compressed:
         d = zlib.decompressobj()
@@ -218,6 +309,8 @@ def unpack_payload(blob: bytes) -> Payload:
             raise DecryptionError("Dữ liệu giải nén vượt giới hạn cho phép.")
     if kind == KIND_TEXT:
         return Payload(KIND_TEXT, body)
+    if kind == KIND_BUNDLE:
+        return Payload(KIND_BUNDLE, b"", None, tuple(_parse_bundle(body)))
     if len(body) < 2:
         raise DecryptionError("Gói file bị hỏng.")
     (name_len,) = struct.unpack(">H", body[:2])

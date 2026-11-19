@@ -1,863 +1,2486 @@
 <!doctype html>
 <html lang="vi">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>StegoVault</title>
-<style>
-:root {
-  color-scheme: light dark;
-  --paper: #eceff2;
-  --panel: #ffffff;
-  --sunk: #f4f6f8;
-  --ink: #13202c;
-  --ink-2: #4a5967;
-  --muted: #6f7d8a;
-  --line: #d8dfe5;
-  --line-2: #bcc7d1;
-  --accent: #1d5fa8;
-  --accent-ink: #ffffff;
-  --accent-soft: #dfeaf7;
-  --hot: #eb6834;
-  --series: #2a78d6;
-  --grid: #e1e0d9;
-  --bad: #a8261e;   --bad-bg: #fcebe9;
-  --warn: #8a5300;  --warn-bg: #fff2dc;
-  --calm: #1b5e8f;  --calm-bg: #e6f1fa;
-  --focus: #1d5fa8;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", sans-serif;
-  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #0f151b;
-    --panel: #172029;
-    --sunk: #1d2833;
-    --ink: #e9eef3;
-    --ink-2: #b2bfca;
-    --muted: #8796a3;
-    --line: #2b3946;
-    --line-2: #3b4b5a;
-    --accent: #5b9be3;
-    --accent-ink: #0b1620;
-    --accent-soft: #1f3248;
-    --hot: #f0794a;
-    --series: #3987e5;
-    --grid: #2c2c2a;
-    --bad: #ff8f86;   --bad-bg: #3a1f1d;
-    --warn: #f3b762;  --warn-bg: #3a2c14;
-    --calm: #86bff0;  --calm-bg: #182b3b;
-    --focus: #8bbcf0;
-  }
-}
-* { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0; background: var(--paper); color: var(--ink);
-  font: 15px/1.55 var(--sans);
-}
-h1, h2, h3 { margin: 0; line-height: 1.25; }
-p { margin: 0; }
-button, input, select, textarea { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-[hidden] { display: none !important; }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StegoVault</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --paper: #eceff2;
+        --panel: #ffffff;
+        --sunk: #f4f6f8;
+        --ink: #13202c;
+        --ink-2: #4a5967;
+        --muted: #6f7d8a;
+        --line: #d8dfe5;
+        --line-2: #bcc7d1;
+        --accent: #1d5fa8;
+        --accent-ink: #ffffff;
+        --accent-soft: #dfeaf7;
+        --hot: #eb6834;
+        --series: #2a78d6;
+        --grid: #e1e0d9;
+        --bad: #a8261e;
+        --bad-bg: #fcebe9;
+        --warn: #8a5300;
+        --warn-bg: #fff2dc;
+        --calm: #1b5e8f;
+        --calm-bg: #e6f1fa;
+        --focus: #1d5fa8;
+        --sans:
+          system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+          "Noto Sans", sans-serif;
+        --mono:
+          ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono",
+          monospace;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --paper: #0f151b;
+          --panel: #172029;
+          --sunk: #1d2833;
+          --ink: #e9eef3;
+          --ink-2: #b2bfca;
+          --muted: #8796a3;
+          --line: #2b3946;
+          --line-2: #3b4b5a;
+          --accent: #5b9be3;
+          --accent-ink: #0b1620;
+          --accent-soft: #1f3248;
+          --hot: #f0794a;
+          --series: #3987e5;
+          --grid: #2c2c2a;
+          --bad: #ff8f86;
+          --bad-bg: #3a1f1d;
+          --warn: #f3b762;
+          --warn-bg: #3a2c14;
+          --calm: #86bff0;
+          --calm-bg: #182b3b;
+          --focus: #8bbcf0;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font: 15px/1.55 var(--sans);
+      }
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        line-height: 1.25;
+      }
+      p {
+        margin: 0;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+      .sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+      [hidden] {
+        display: none !important;
+      }
 
-/* ---------- khung trang ---------- */
-.wrap { max-width: 1160px; margin: 0 auto; padding: 0 20px; }
-.top { background: var(--panel); border-bottom: 1px solid var(--line); }
-.top .wrap { padding-top: 18px; }
-.brand { display: flex; gap: 14px; align-items: center; }
-.mark { width: 34px; height: 34px; flex: none; }
-.mark rect { fill: var(--line-2); }
-.mark rect.hid { fill: var(--hot); }
-.brand h1 { font-size: 21px; font-weight: 700; letter-spacing: -0.01em; }
-.brand p { color: var(--ink-2); font-size: 13.5px; max-width: 62ch; }
-.tabs { display: flex; gap: 4px; margin-top: 14px; overflow-x: auto; }
-.tab {
-  border: 0; background: none; padding: 10px 14px 11px; cursor: pointer;
-  color: var(--ink-2); font-weight: 600; border-bottom: 2px solid transparent; white-space: nowrap;
-}
-.tab:hover { color: var(--ink); }
-.tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
-main.wrap { padding-top: 26px; padding-bottom: 56px; }
-.foot { color: var(--muted); font-size: 13px; padding: 0 20px 36px; max-width: 1160px; margin: 0 auto; }
+      /* ---------- khung trang ---------- */
+      .wrap {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      .top {
+        background: var(--panel);
+        border-bottom: 1px solid var(--line);
+      }
+      .top .wrap {
+        padding-top: 18px;
+      }
+      .brand {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+      }
+      .mark {
+        width: 34px;
+        height: 34px;
+        flex: none;
+      }
+      .mark rect {
+        fill: var(--line-2);
+      }
+      .mark rect.hid {
+        fill: var(--hot);
+      }
+      .brand h1 {
+        font-size: 21px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .brand p {
+        color: var(--ink-2);
+        font-size: 13.5px;
+        max-width: 62ch;
+      }
+      .tabs {
+        display: flex;
+        gap: 4px;
+        margin-top: 14px;
+        overflow-x: auto;
+      }
+      .tab {
+        border: 0;
+        background: none;
+        padding: 10px 14px 11px;
+        cursor: pointer;
+        color: var(--ink-2);
+        font-weight: 600;
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+      }
+      .tab:hover {
+        color: var(--ink);
+      }
+      .tab[aria-selected="true"] {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+      }
+      main.wrap {
+        padding-top: 26px;
+        padding-bottom: 56px;
+      }
 
-.grid { display: grid; gap: 28px; grid-template-columns: minmax(0, 1fr); align-items: start; }
-@media (min-width: 940px) { .grid { grid-template-columns: minmax(0, 430px) minmax(0, 1fr); } }
-.col-in { display: grid; gap: 20px; }
-.lead { color: var(--ink-2); max-width: 68ch; margin-bottom: 18px; }
-.page-title { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 6px; }
+      .grid {
+        display: grid;
+        gap: 28px;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: start;
+      }
+      @media (min-width: 940px) {
+        .grid {
+          grid-template-columns: minmax(0, 430px) minmax(0, 1fr);
+        }
+      }
+      .col-in {
+        display: grid;
+        gap: 20px;
+      }
+      .lead {
+        color: var(--ink-2);
+        max-width: 68ch;
+        margin-bottom: 18px;
+      }
+      .page-title {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin-bottom: 6px;
+      }
 
-/* ---------- ô nhập ---------- */
-.field { display: grid; gap: 6px; }
-.field > label, .field > .lbl { font-weight: 600; font-size: 14px; }
-.hint { color: var(--muted); font-size: 13px; }
-input[type="text"], input[type="password"], select, textarea {
-  width: 100%; border: 1px solid var(--line-2); background: var(--panel); border-radius: 6px;
-  padding: 9px 11px; min-height: 40px;
-}
-textarea { resize: vertical; min-height: 104px; line-height: 1.5; }
-.pw { position: relative; }
-.pw input { padding-right: 74px; }
-.pw button {
-  position: absolute; right: 4px; top: 4px; bottom: 4px; padding: 0 10px; border: 0; border-radius: 5px;
-  background: var(--sunk); color: var(--ink-2); cursor: pointer; font-size: 13px;
-}
-.btn {
-  border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
-  border-radius: 8px; padding: 10px 18px; font-weight: 600; cursor: pointer; min-height: 42px;
-}
-.btn:hover { filter: brightness(1.06); }
-.btn[disabled] { opacity: .55; cursor: progress; }
-.btn.ghost { background: transparent; color: var(--accent); border-color: var(--line-2); }
-.btn.ghost:hover { background: var(--accent-soft); filter: none; }
-.btn.small { padding: 6px 12px; min-height: 34px; font-size: 14px; }
-.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+      /* ---------- ô nhập ---------- */
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+      .field > label,
+      .field > .lbl {
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .hint {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      input[type="text"],
+      input[type="password"],
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line-2);
+        background: var(--panel);
+        border-radius: 6px;
+        padding: 9px 11px;
+        min-height: 40px;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 104px;
+        line-height: 1.5;
+      }
+      .pw {
+        position: relative;
+      }
+      .pw input {
+        padding-right: 74px;
+      }
+      .pw button {
+        position: absolute;
+        right: 4px;
+        top: 4px;
+        bottom: 4px;
+        padding: 0 10px;
+        border: 0;
+        border-radius: 5px;
+        background: var(--sunk);
+        color: var(--ink-2);
+        cursor: pointer;
+        font-size: 13px;
+      }
+      .btn {
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: var(--accent-ink);
+        border-radius: 8px;
+        padding: 10px 18px;
+        font-weight: 600;
+        cursor: pointer;
+        min-height: 42px;
+      }
+      .btn:hover {
+        filter: brightness(1.06);
+      }
+      .btn[disabled] {
+        opacity: 0.55;
+        cursor: progress;
+      }
+      .btn.ghost {
+        background: transparent;
+        color: var(--accent);
+        border-color: var(--line-2);
+      }
+      .btn.ghost:hover {
+        background: var(--accent-soft);
+        filter: none;
+      }
+      .btn.small {
+        padding: 6px 12px;
+        min-height: 34px;
+        font-size: 14px;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
 
-/* vùng thả ảnh */
-.drop {
-  display: block; position: relative; border: 1.5px dashed var(--line-2); border-radius: 10px;
-  background: var(--panel); cursor: pointer; padding: 18px; text-align: center; color: var(--ink-2);
-}
-.drop:hover, .drop.drag { border-color: var(--accent); background: var(--accent-soft); }
-.drop:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
-.drop strong { color: var(--ink); display: block; margin-bottom: 2px; }
-.drop .when-has { display: none; }
-.drop.has { border-style: solid; padding: 10px; text-align: left; }
-.drop.has .when-empty { display: none; }
-.drop.has .when-has { display: grid; gap: 8px; }
-.drop img.thumb { width: 100%; max-height: 230px; object-fit: contain; background: var(--sunk); border-radius: 6px; }
-.drop .meta { font-size: 13px; color: var(--ink-2); overflow-wrap: anywhere; }
-.samples { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; font-size: 13px; color: var(--muted); }
-.chip {
-  border: 1px solid var(--line-2); background: var(--panel); border-radius: 999px; padding: 3px 11px;
-  cursor: pointer; font-size: 13px; color: var(--ink-2);
-}
-.chip:hover { border-color: var(--accent); color: var(--accent); }
+      /* vùng thả ảnh */
+      .drop {
+        display: block;
+        position: relative;
+        border: 1.5px dashed var(--line-2);
+        border-radius: 10px;
+        background: var(--panel);
+        cursor: pointer;
+        padding: 18px;
+        text-align: center;
+        color: var(--ink-2);
+      }
+      .drop:hover,
+      .drop.drag {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+      .drop:focus-within {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+      .drop strong {
+        color: var(--ink);
+        display: block;
+        margin-bottom: 2px;
+      }
+      .drop .when-has {
+        display: none;
+      }
+      .drop.has {
+        border-style: solid;
+        padding: 10px;
+        text-align: left;
+      }
+      .drop.has .when-empty {
+        display: none;
+      }
+      .drop.has .when-has {
+        display: grid;
+        gap: 8px;
+      }
+      .drop img.thumb {
+        width: 100%;
+        max-height: 230px;
+        object-fit: contain;
+        background: var(--sunk);
+        border-radius: 6px;
+      }
+      .drop .meta {
+        font-size: 13px;
+        color: var(--ink-2);
+        overflow-wrap: anywhere;
+      }
+      .drop .bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .drop .change {
+        flex: none;
+        border: 1px solid var(--line-2);
+        border-radius: 6px;
+        padding: 4px 11px;
+        background: var(--panel);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--accent);
+      }
+      .drop:hover .change,
+      .drop:focus-within .change {
+        border-color: var(--accent);
+      }
 
-/* chuyển đổi nhỏ */
-.seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: 8px; overflow: hidden; background: var(--panel); }
-.seg label { cursor: pointer; padding: 6px 14px; font-size: 14px; color: var(--ink-2); font-weight: 600; }
-.seg input { position: absolute; opacity: 0; pointer-events: none; }
-.seg input:checked + span, .seg label:has(input:checked) { background: var(--accent-soft); color: var(--accent); }
-.seg label:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: -2px; }
+      /* danh sách file cần giấu */
+      .filebox {
+        display: grid;
+        gap: 10px;
+        border: 1.5px dashed var(--line-2);
+        border-radius: 10px;
+        background: var(--panel);
+        padding: 12px 14px;
+      }
+      .filebox.drag {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+      ul.files {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      ul.files li {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 4px 12px;
+        align-items: center;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--line);
+        font-size: 14px;
+      }
+      ul.files li:last-child {
+        border-bottom: 0;
+      }
+      ul.files .fn {
+        overflow-wrap: anywhere;
+      }
+      ul.files .fs {
+        color: var(--muted);
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+      }
+      ul.files:empty {
+        display: none;
+      }
 
-/* phương pháp */
-.opts { display: grid; gap: 8px; }
-.opt {
-  display: grid; grid-template-columns: 20px 1fr; gap: 4px 10px; padding: 10px 12px; cursor: pointer;
-  border: 1px solid var(--line-2); border-radius: 8px; background: var(--panel);
-}
-.opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
-.opt:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
-.opt input { margin: 3px 0 0; accent-color: var(--accent); }
-.opt b { font-weight: 600; }
-.opt small { grid-column: 2; color: var(--ink-2); font-size: 13px; line-height: 1.45; }
+      /* chuyển đổi nhỏ */
+      .seg {
+        display: inline-flex;
+        border: 1px solid var(--line-2);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--panel);
+      }
+      .seg label {
+        cursor: pointer;
+        padding: 6px 14px;
+        font-size: 14px;
+        color: var(--ink-2);
+        font-weight: 600;
+      }
+      .seg input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .seg input:checked + span,
+      .seg label:has(input:checked) {
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+      .seg label:has(input:focus-visible) {
+        outline: 2px solid var(--focus);
+        outline-offset: -2px;
+      }
 
-/* thanh dung lượng */
-.meter { height: 8px; border-radius: 999px; background: var(--accent-soft); overflow: hidden; }
-.meter i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width .15s; }
-.meter.warn i { background: #c98500; }
-.meter.over i { background: #d03b3b; }
+      /* phương pháp */
+      .opts {
+        display: grid;
+        gap: 8px;
+      }
+      .opt {
+        display: grid;
+        grid-template-columns: 20px 1fr;
+        gap: 4px 10px;
+        padding: 10px 12px;
+        cursor: pointer;
+        border: 1px solid var(--line-2);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+      .opt:has(input:checked) {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+      .opt:has(input:focus-visible) {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+      .opt input {
+        margin: 3px 0 0;
+        accent-color: var(--accent);
+      }
+      .opt b {
+        font-weight: 600;
+      }
+      .opt small {
+        grid-column: 2;
+        color: var(--ink-2);
+        font-size: 13px;
+        line-height: 1.45;
+      }
 
-details { border-top: 1px solid var(--line); padding-top: 10px; }
-details summary { cursor: pointer; font-weight: 600; color: var(--ink-2); }
-details[open] summary { margin-bottom: 8px; }
-details p, details ul { color: var(--ink-2); font-size: 14px; }
-details ul { padding-left: 18px; margin: 6px 0 0; }
+      /* thanh dung lượng */
+      .meter {
+        height: 8px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        overflow: hidden;
+      }
+      .meter i {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: var(--accent);
+        border-radius: 999px;
+        transition: width 0.15s;
+      }
+      .meter.warn i {
+        background: #c98500;
+      }
+      .meter.over i {
+        background: #d03b3b;
+      }
 
-/* ---------- kết quả ---------- */
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
-.panel + .panel { margin-top: 18px; }
-.panel h2 { font-size: 17px; font-weight: 700; margin-bottom: 12px; }
-.empty { color: var(--muted); border: 1.5px dashed var(--line); border-radius: 12px; padding: 36px 24px; text-align: center; }
-.alert {
-  display: flex; gap: 10px; padding: 11px 14px; border-radius: 8px; background: var(--bad-bg); color: var(--bad);
-  border: 1px solid color-mix(in srgb, var(--bad) 40%, transparent); font-size: 14px; align-items: flex-start;
-}
-.alert svg { flex: none; margin-top: 2px; }
-.note { padding: 9px 12px; border-radius: 8px; background: var(--warn-bg); color: var(--warn); font-size: 13.5px; }
-.stats { display: grid; grid-template-columns: max-content 1fr; gap: 6px 22px; margin: 14px 0 0; font-size: 14px; }
-.stats dt { color: var(--ink-2); }
-.stats dd { margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.result-img { display: block; max-width: 100%; max-height: 380px; margin: 0 auto; border-radius: 6px; background: var(--sunk); }
-.out {
-  background: var(--sunk); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px;
-  white-space: pre-wrap; overflow-wrap: anywhere; max-height: 360px; overflow: auto; font: 15px/1.55 var(--sans);
-}
+      details {
+        border-top: 1px solid var(--line);
+        padding-top: 10px;
+      }
+      details summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--ink-2);
+      }
+      details[open] summary {
+        margin-bottom: 8px;
+      }
+      details p,
+      details ul {
+        color: var(--ink-2);
+        font-size: 14px;
+      }
+      details ul {
+        padding-left: 18px;
+        margin: 6px 0 0;
+      }
 
-/* ---------- reveal: kéo để lật giữa ảnh và mặt phẳng bit ---------- */
-.stage { overflow: auto; max-height: 72vh; border-radius: 8px; background: #0e1419; }
-.reveal { position: relative; line-height: 0; user-select: none; -webkit-user-select: none; margin: 0 auto; }
-.reveal img { display: block; width: 100%; height: auto; }
-.reveal .rv-over { position: absolute; inset: 0; clip-path: inset(0 0 0 var(--pos, 50%)); image-rendering: pixelated; }
-.reveal .rv-handle { position: absolute; top: 0; bottom: 0; left: var(--pos, 50%); width: 2px; margin-left: -1px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.45); pointer-events: none; }
-.reveal .rv-handle::after {
-  content: ""; position: absolute; top: 50%; left: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%;
-  background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.35);
-  background-image: linear-gradient(90deg, transparent 42%, #13202c 42%, #13202c 48%, transparent 48%, transparent 52%, #13202c 52%, #13202c 58%, transparent 58%);
-}
-.reveal:focus-within .rv-handle::after { outline: 3px solid var(--focus); outline-offset: 2px; }
-.reveal input[type=range] { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; touch-action: pan-y; }
-.rv-tag { position: absolute; top: 8px; padding: 3px 9px; border-radius: 999px; font: 600 12px/1.4 var(--sans); background: rgba(10,16,22,.78); color: #fff; pointer-events: none; }
-.rv-tag.l { left: 8px; } .rv-tag.r { right: 8px; }
-.view-tools { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; font-size: 13px; color: var(--ink-2); }
+      /* ---------- kết quả ---------- */
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 20px;
+      }
+      .panel + .panel {
+        margin-top: 18px;
+      }
+      .panel h2 {
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+      .empty {
+        color: var(--muted);
+        border: 1.5px dashed var(--line);
+        border-radius: 12px;
+        padding: 36px 24px;
+        text-align: center;
+      }
+      .alert {
+        display: flex;
+        gap: 10px;
+        padding: 11px 14px;
+        border-radius: 8px;
+        background: var(--bad-bg);
+        color: var(--bad);
+        border: 1px solid color-mix(in srgb, var(--bad) 40%, transparent);
+        font-size: 14px;
+        align-items: flex-start;
+      }
+      .alert svg {
+        flex: none;
+        margin-top: 2px;
+      }
+      .note {
+        padding: 9px 12px;
+        border-radius: 8px;
+        background: var(--warn-bg);
+        color: var(--warn);
+        font-size: 13.5px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 6px 22px;
+        margin: 14px 0 0;
+        font-size: 14px;
+      }
+      .stats dt {
+        color: var(--ink-2);
+      }
+      .stats dd {
+        margin: 0;
+        font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
+      }
+      .result-img {
+        display: block;
+        max-width: 100%;
+        max-height: 380px;
+        margin: 0 auto;
+        border-radius: 6px;
+        background: var(--sunk);
+      }
+      .out {
+        background: var(--sunk);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px 14px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        max-height: 360px;
+        overflow: auto;
+        font: 15px/1.55 var(--sans);
+      }
 
-/* ---------- kết luận phân tích ---------- */
-.verdict { display: grid; grid-template-columns: 34px 1fr; gap: 12px; padding: 14px 16px; border-radius: 10px; }
-.verdict .ic { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 18px; background: currentColor; }
-.verdict .ic span { color: var(--panel); }
-.verdict h3 { font-size: 16px; font-weight: 700; margin-bottom: 2px; color: var(--ink); }
-.verdict p { font-size: 14px; color: var(--ink-2); }
-.verdict.bad { background: var(--bad-bg); color: var(--bad); }
-.verdict.warn { background: var(--warn-bg); color: var(--warn); }
-.verdict.calm { background: var(--calm-bg); color: var(--calm); }
-.kpis { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); margin-top: 14px; }
-.kpi { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
-.kpi .v { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.kpi .k { color: var(--ink-2); font-size: 13px; }
-.kpi .s { font-size: 12.5px; margin-top: 2px; font-weight: 600; }
-.kpi .s.bad { color: var(--bad); } .kpi .s.ok { color: var(--calm); }
+      /* ---------- reveal: kéo để lật giữa ảnh và mặt phẳng bit ---------- */
+      .stage {
+        overflow: auto;
+        max-height: 72vh;
+        border-radius: 8px;
+        background: #0e1419;
+      }
+      .reveal {
+        position: relative;
+        line-height: 0;
+        user-select: none;
+        -webkit-user-select: none;
+        margin: 0 auto;
+      }
+      .reveal img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .reveal .rv-over {
+        position: absolute;
+        inset: 0;
+        clip-path: inset(0 0 0 var(--pos, 50%));
+        image-rendering: pixelated;
+      }
+      .reveal .rv-handle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: var(--pos, 50%);
+        width: 2px;
+        margin-left: -1px;
+        background: #fff;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+        pointer-events: none;
+      }
+      .reveal .rv-handle::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 30px;
+        height: 30px;
+        margin: -15px 0 0 -15px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.45),
+          0 2px 6px rgba(0, 0, 0, 0.35);
+        background-image: linear-gradient(
+          90deg,
+          transparent 42%,
+          #13202c 42%,
+          #13202c 48%,
+          transparent 48%,
+          transparent 52%,
+          #13202c 52%,
+          #13202c 58%,
+          transparent 58%
+        );
+      }
+      .reveal:focus-within .rv-handle::after {
+        outline: 3px solid var(--focus);
+        outline-offset: 2px;
+      }
+      .reveal input[type="range"] {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        opacity: 0;
+        cursor: ew-resize;
+        touch-action: pan-y;
+      }
+      .rv-tag {
+        position: absolute;
+        top: 8px;
+        padding: 3px 9px;
+        border-radius: 999px;
+        font: 600 12px/1.4 var(--sans);
+        background: rgba(10, 16, 22, 0.78);
+        color: #fff;
+        pointer-events: none;
+      }
+      .rv-tag.l {
+        left: 8px;
+      }
+      .rv-tag.r {
+        right: 8px;
+      }
+      .view-tools {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: 10px;
+        font-size: 13px;
+        color: var(--ink-2);
+      }
 
-.chart-box { position: relative; }
-.chart-box svg { display: block; width: 100%; height: auto; overflow: visible; }
-.chart-box .tip {
-  position: absolute; pointer-events: none; background: var(--ink); color: var(--paper); font-size: 12.5px;
-  padding: 5px 9px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, -120%); z-index: 2;
-}
-table.tbl { border-collapse: collapse; width: 100%; font-size: 13.5px; font-variant-numeric: tabular-nums; }
-table.tbl th, table.tbl td { text-align: left; padding: 5px 10px 5px 0; border-bottom: 1px solid var(--line); }
-table.tbl th { color: var(--ink-2); font-weight: 600; }
-.spin { display: inline-block; width: 15px; height: 15px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: sp .8s linear infinite; vertical-align: -2px; margin-right: 8px; }
-@keyframes sp { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .spin { animation-duration: 3s; } .meter i { transition: none; } }
-</style>
-</head>
-<body>
-<header class="top">
-  <div class="wrap">
-    <div class="brand">
-      <svg class="mark" viewBox="0 0 24 24" role="img" aria-label="Biểu tượng StegoVault: một điểm ảnh khác màu giữa lưới điểm ảnh">
-        <rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="17" y="1" width="6" height="6" rx="1"/>
-        <rect x="1" y="9" width="6" height="6" rx="1"/><rect class="hid" x="9" y="9" width="6" height="6" rx="1"/><rect x="17" y="9" width="6" height="6" rx="1"/>
-        <rect x="1" y="17" width="6" height="6" rx="1"/><rect x="9" y="17" width="6" height="6" rx="1"/><rect x="17" y="17" width="6" height="6" rx="1"/>
-      </svg>
-      <div>
-        <h1>StegoVault</h1>
-        <p>Giấu tin mã hóa trong ảnh và soi xem ảnh có bị giấu tin hay không. Mọi xử lý diễn ra trên máy bạn; ảnh và mật khẩu không được gửi đi đâu.</p>
-      </div>
-    </div>
-    <div class="tabs" role="tablist" aria-label="Chức năng">
-      <button class="tab" role="tab" id="t-embed" aria-controls="tab-embed" aria-selected="true">Giấu tin</button>
-      <button class="tab" role="tab" id="t-extract" aria-controls="tab-extract" aria-selected="false" tabindex="-1">Trích xuất</button>
-      <button class="tab" role="tab" id="t-analyze" aria-controls="tab-analyze" aria-selected="false" tabindex="-1">Phân tích</button>
-      <button class="tab" role="tab" id="t-compare" aria-controls="tab-compare" aria-selected="false" tabindex="-1">So sánh</button>
-    </div>
-  </div>
-</header>
+      /* ---------- kết luận phân tích ---------- */
+      .verdict {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: 10px;
+      }
+      .verdict .ic {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        font-size: 18px;
+        background: currentColor;
+      }
+      .verdict .ic span {
+        color: var(--panel);
+      }
+      .verdict h3 {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 2px;
+        color: var(--ink);
+      }
+      .verdict p {
+        font-size: 14px;
+        color: var(--ink-2);
+      }
+      .verdict.bad {
+        background: var(--bad-bg);
+        color: var(--bad);
+      }
+      .verdict.warn {
+        background: var(--warn-bg);
+        color: var(--warn);
+      }
+      .verdict.calm {
+        background: var(--calm-bg);
+        color: var(--calm);
+      }
+      .kpis {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        margin-top: 14px;
+      }
+      .kpi {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px 12px;
+      }
+      .kpi .v {
+        font-size: 22px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+      .kpi .k {
+        color: var(--ink-2);
+        font-size: 13px;
+      }
+      .kpi .s {
+        font-size: 12.5px;
+        margin-top: 2px;
+        font-weight: 600;
+      }
+      .kpi .s.bad {
+        color: var(--bad);
+      }
+      .kpi .s.ok {
+        color: var(--calm);
+      }
 
-<main class="wrap">
-
-<!-- ============ GIẤU TIN ============ -->
-<section id="tab-embed" role="tabpanel" aria-labelledby="t-embed">
-  <h2 class="page-title">Giấu một tin nhắn hoặc file vào ảnh</h2>
-  <p class="lead">Tin được mã hóa bằng AES-256-GCM trước, rồi các bit của bản mã được rải vào bit thấp nhất của ảnh. Người xem ảnh không thấy khác biệt; người không có mật khẩu chỉ thấy dữ liệu ngẫu nhiên.</p>
-  <div class="grid">
-    <form id="embedForm" class="col-in" autocomplete="off">
-      <div class="field">
-        <span class="lbl">Ảnh gốc</span>
-        <label class="drop" id="cover">
-          <input class="sr" type="file" accept="image/*">
-          <span class="when-empty"><strong>Chọn hoặc kéo thả ảnh vào đây</strong>PNG, BMP hoặc JPG, tối đa 16 megapixel</span>
-          <span class="when-has"><img class="thumb" alt="Xem trước ảnh gốc"><span class="meta"></span></span>
-        </label>
-        <div class="samples" data-for="cover"></div>
-        <div class="hint" id="capText"></div>
-        <div class="note" id="alphaNote" hidden>Ảnh này có nền trong suốt; phần trong suốt sẽ bị bỏ khi giấu tin.</div>
-      </div>
-
-      <div class="field">
-        <span class="lbl">Nội dung cần giấu</span>
-        <div><div class="seg" role="radiogroup" aria-label="Loại nội dung">
-          <label><input type="radio" name="kind" value="text" checked><span>Tin nhắn</span></label>
-          <label><input type="radio" name="kind" value="file"><span>File</span></label>
-        </div></div>
-        <textarea id="msgText" aria-label="Tin nhắn cần giấu" placeholder="Nhập tin nhắn bí mật…"></textarea>
-        <input id="msgFile" type="file" hidden aria-label="File cần giấu">
-        <div class="meter" id="meter" role="img" aria-label="Mức dùng dung lượng của ảnh"><i></i></div>
-        <div class="hint" id="meterText">Chọn ảnh để xem dung lượng.</div>
-      </div>
-
-      <div class="field">
-        <label for="pw">Mật khẩu</label>
-        <div class="pw"><input id="pw" type="password" autocomplete="new-password" spellcheck="false"><button type="button" data-toggle="pw" aria-label="Hiện hoặc ẩn mật khẩu">Hiện</button></div>
-        <div class="hint" id="pwHint">Dùng ít nhất 12 ký tự. Quên mật khẩu thì không thể lấy lại tin.</div>
-      </div>
-
-      <div class="field">
-        <span class="lbl">Cách giấu</span>
-        <div class="opts" role="radiogroup" aria-label="Phương pháp nhúng">
-          <label class="opt"><input type="radio" name="method" value="matching" checked><b>LSB matching (khuyến nghị)</b><small>Cộng hoặc trừ 1 ở các điểm ảnh rải ngẫu nhiên theo khóa. Khó bị phát hiện nhất bằng chi-square và RS.</small></label>
-          <label class="opt"><input type="radio" name="method" value="keyed"><b>LSB rải theo khóa</b><small>Ghi đè bit thấp nhất tại các vị trí ngẫu nhiên theo khóa. Bị RS phát hiện khi nhúng nhiều.</small></label>
-          <label class="opt"><input type="radio" name="method" value="sequential"><b>LSB tuần tự</b><small>Ghi lần lượt từ đầu ảnh. Dễ hiểu nhất và dễ bị lộ nhất; dùng để so sánh.</small></label>
+      .chart-box {
+        position: relative;
+      }
+      .chart-box svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+      }
+      .chart-box .tip {
+        position: absolute;
+        pointer-events: none;
+        background: var(--ink);
+        color: var(--paper);
+        font-size: 12.5px;
+        padding: 5px 9px;
+        border-radius: 6px;
+        white-space: nowrap;
+        transform: translate(-50%, -120%);
+        z-index: 2;
+      }
+      table.tbl {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 13.5px;
+        font-variant-numeric: tabular-nums;
+      }
+      table.tbl th,
+      table.tbl td {
+        text-align: left;
+        padding: 5px 10px 5px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      table.tbl th {
+        color: var(--ink-2);
+        font-weight: 600;
+      }
+      .spin {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        border: 2px solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: sp 0.8s linear infinite;
+        vertical-align: -2px;
+        margin-right: 8px;
+      }
+      @keyframes sp {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .spin {
+          animation-duration: 3s;
+        }
+        .meter i {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <div class="wrap">
+        <div class="brand">
+          <svg
+            class="mark"
+            viewBox="0 0 24 24"
+            role="img"
+            aria-label="Biểu tượng StegoVault: một điểm ảnh khác màu giữa lưới điểm ảnh"
+          >
+            <rect x="1" y="1" width="6" height="6" rx="1" />
+            <rect x="9" y="1" width="6" height="6" rx="1" />
+            <rect x="17" y="1" width="6" height="6" rx="1" />
+            <rect x="1" y="9" width="6" height="6" rx="1" />
+            <rect class="hid" x="9" y="9" width="6" height="6" rx="1" />
+            <rect x="17" y="9" width="6" height="6" rx="1" />
+            <rect x="1" y="17" width="6" height="6" rx="1" />
+            <rect x="9" y="17" width="6" height="6" rx="1" />
+            <rect x="17" y="17" width="6" height="6" rx="1" />
+          </svg>
+          <div>
+            <h1>StegoVault</h1>
+            <p>
+              Giấu tin mã hóa trong ảnh và soi xem ảnh có bị giấu tin hay không.
+              Mọi xử lý diễn ra trên máy bạn; ảnh và mật khẩu không được gửi đi
+              đâu.
+            </p>
+          </div>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Chức năng">
+          <button
+            class="tab"
+            role="tab"
+            id="t-embed"
+            aria-controls="tab-embed"
+            aria-selected="true"
+          >
+            Giấu tin
+          </button>
+          <button
+            class="tab"
+            role="tab"
+            id="t-extract"
+            aria-controls="tab-extract"
+            aria-selected="false"
+            tabindex="-1"
+          >
+            Trích xuất
+          </button>
+          <button
+            class="tab"
+            role="tab"
+            id="t-analyze"
+            aria-controls="tab-analyze"
+            aria-selected="false"
+            tabindex="-1"
+          >
+            Phân tích
+          </button>
+          <button
+            class="tab"
+            role="tab"
+            id="t-compare"
+            aria-controls="tab-compare"
+            aria-selected="false"
+            tabindex="-1"
+          >
+            So sánh
+          </button>
         </div>
       </div>
+    </header>
 
-      <details>
-        <summary>Tùy chọn nâng cao</summary>
-        <div class="field"><label for="kdf">Hàm làm chậm mật khẩu (KDF)</label><select id="kdf"></select>
-          <span class="hint">Cả hai đều chống dò mật khẩu bằng cách tốn bộ nhớ. Khi trích xuất, công cụ tự thử cả hai.</span></div>
-      </details>
+    <main class="wrap">
+      <!-- ============ GIẤU TIN ============ -->
+      <section id="tab-embed" role="tabpanel" aria-labelledby="t-embed">
+        <h2 class="page-title">Giấu tin nhắn hoặc file vào ảnh</h2>
+        <p class="lead">
+          Tin được mã hóa bằng AES-256-GCM trước, rồi các bit của bản mã được
+          rải vào bit thấp nhất của ảnh. Người xem ảnh không thấy khác biệt;
+          người không có mật khẩu chỉ thấy dữ liệu ngẫu nhiên.
+        </p>
+        <div class="grid">
+          <form id="embedForm" class="col-in" autocomplete="off">
+            <div class="field">
+              <span class="lbl">Ảnh gốc</span>
+              <label class="drop" id="cover">
+                <input class="sr" type="file" accept="image/*" />
+                <span class="when-empty"
+                  ><strong>Chọn hoặc kéo thả ảnh vào đây</strong>PNG, BMP hoặc
+                  JPG, tối đa 16 megapixel</span
+                >
+                <span class="when-has"
+                  ><img class="thumb" alt="Xem trước ảnh gốc" /><span
+                    class="bar"
+                    ><span class="meta"></span
+                    ><span class="change">Đổi ảnh</span></span
+                  ></span
+                >
+              </label>
+              <div class="hint" id="capText"></div>
+              <div class="note" id="alphaNote" hidden>
+                Ảnh này có nền trong suốt; phần trong suốt sẽ bị bỏ khi giấu
+                tin.
+              </div>
+            </div>
 
-      <div id="embedAlert"></div>
-      <div><button class="btn" id="embedBtn" type="submit">Giấu tin vào ảnh</button></div>
-    </form>
+            <div class="field">
+              <span class="lbl">Nội dung cần giấu</span>
+              <div>
+                <div class="seg" role="radiogroup" aria-label="Loại nội dung">
+                  <label
+                    ><input
+                      type="radio"
+                      name="kind"
+                      value="text"
+                      checked
+                    /><span>Tin nhắn</span></label
+                  >
+                  <label
+                    ><input type="radio" name="kind" value="file" /><span
+                      >File</span
+                    ></label
+                  >
+                </div>
+              </div>
+              <textarea
+                id="msgText"
+                aria-label="Tin nhắn cần giấu"
+                placeholder="Nhập tin nhắn bí mật…"
+              ></textarea>
+              <div class="filebox" id="fileBox" hidden>
+                <ul
+                  class="files"
+                  id="fileList"
+                  aria-label="Các file sẽ được giấu"
+                ></ul>
+                <div class="row">
+                  <button type="button" class="btn ghost small" id="addFiles">
+                    Chọn file…
+                  </button>
+                  <button
+                    type="button"
+                    class="btn ghost small"
+                    id="clearFiles"
+                    hidden
+                  >
+                    Xóa hết
+                  </button>
+                </div>
+                <div class="hint" id="fileHint">
+                  Chọn một hoặc nhiều file, hoặc kéo thả vào đây.
+                </div>
+                <input
+                  id="msgFile"
+                  type="file"
+                  multiple
+                  hidden
+                  aria-label="Chọn file cần giấu"
+                />
+              </div>
+              <div
+                class="meter"
+                id="meter"
+                role="img"
+                aria-label="Mức dùng dung lượng của ảnh"
+              >
+                <i></i>
+              </div>
+              <div class="hint" id="meterText">Chọn ảnh để xem dung lượng.</div>
+            </div>
 
-    <div id="embedOut"><div class="empty">Ảnh đã giấu tin sẽ hiện ở đây, kèm các chỉ số chất lượng.</div></div>
-  </div>
-</section>
+            <div class="field">
+              <label for="pw">Mật khẩu</label>
+              <div class="pw">
+                <input
+                  id="pw"
+                  type="password"
+                  autocomplete="new-password"
+                  spellcheck="false"
+                /><button
+                  type="button"
+                  data-toggle="pw"
+                  aria-label="Hiện hoặc ẩn mật khẩu"
+                >
+                  Hiện
+                </button>
+              </div>
+              <div class="hint" id="pwHint">
+                Dùng ít nhất 12 ký tự. Quên mật khẩu thì không thể lấy lại tin.
+              </div>
+            </div>
 
-<!-- ============ TRÍCH XUẤT ============ -->
-<section id="tab-extract" role="tabpanel" aria-labelledby="t-extract" hidden>
-  <h2 class="page-title">Lấy tin ra khỏi ảnh</h2>
-  <p class="lead">Cần đúng ảnh PNG gốc đã giấu tin và đúng mật khẩu. Nếu ảnh đã bị nén JPEG, đổi kích thước hoặc chỉnh sửa, các bit ẩn bị hỏng và việc giải mã sẽ thất bại.</p>
-  <div class="grid">
-    <form id="extractForm" class="col-in" autocomplete="off">
-      <div class="field">
-        <span class="lbl">Ảnh chứa tin</span>
-        <label class="drop" id="xstego">
-          <input class="sr" type="file" accept="image/*">
-          <span class="when-empty"><strong>Chọn hoặc kéo thả ảnh vào đây</strong>Nên dùng đúng file PNG đã tạo ở bước giấu tin</span>
-          <span class="when-has"><img class="thumb" alt="Xem trước ảnh chứa tin"><span class="meta"></span></span>
-        </label>
-      </div>
-      <div class="field">
-        <label for="xpw">Mật khẩu</label>
-        <div class="pw"><input id="xpw" type="password" autocomplete="off" spellcheck="false"><button type="button" data-toggle="xpw" aria-label="Hiện hoặc ẩn mật khẩu">Hiện</button></div>
-      </div>
-      <div id="extractAlert"></div>
-      <div><button class="btn" id="extractBtn" type="submit">Trích xuất và giải mã</button></div>
-    </form>
-    <div id="extractOut"><div class="empty">Tin nhắn hoặc file lấy ra được sẽ hiện ở đây.</div></div>
-  </div>
-</section>
+            <div class="field">
+              <span class="lbl">Cách giấu</span>
+              <div
+                class="opts"
+                role="radiogroup"
+                aria-label="Phương pháp nhúng"
+              >
+                <label class="opt"
+                  ><input
+                    type="radio"
+                    name="method"
+                    value="matching"
+                    checked
+                  /><b>LSB matching (khuyến nghị)</b
+                  ><small
+                    >Cộng hoặc trừ 1 ở các điểm ảnh rải ngẫu nhiên theo khóa.
+                    Khó bị phát hiện nhất bằng chi-square và RS.</small
+                  ></label
+                >
+                <label class="opt"
+                  ><input type="radio" name="method" value="keyed" /><b
+                    >LSB rải theo khóa</b
+                  ><small
+                    >Ghi đè bit thấp nhất tại các vị trí ngẫu nhiên theo khóa.
+                    Bị RS phát hiện khi nhúng nhiều.</small
+                  ></label
+                >
+                <label class="opt"
+                  ><input type="radio" name="method" value="sequential" /><b
+                    >LSB tuần tự</b
+                  ><small
+                    >Ghi lần lượt từ đầu ảnh. Dễ hiểu nhất và dễ bị lộ nhất;
+                    dùng để so sánh.</small
+                  ></label
+                >
+              </div>
+            </div>
 
-<!-- ============ PHÂN TÍCH ============ -->
-<section id="tab-analyze" role="tabpanel" aria-labelledby="t-analyze" hidden>
-  <h2 class="page-title">Soi một ảnh có bị giấu tin LSB hay không</h2>
-  <p class="lead">Đây là phía người dò: kiểm định chi-square của Westfeld và Pfitzmann, phân tích RS của Fridrich và mặt phẳng bit thấp nhất. Các bài kiểm tra này bắt tốt LSB ghi đè nhưng gần như bỏ sót LSB matching.</p>
-  <div class="grid">
-    <div class="col-in">
-      <div class="field">
-        <span class="lbl">Ảnh cần phân tích</span>
-        <label class="drop" id="astego">
-          <input class="sr" type="file" accept="image/*">
-          <span class="when-empty"><strong>Chọn hoặc kéo thả ảnh vào đây</strong>Phân tích chạy ngay khi ảnh được nạp</span>
-          <span class="when-has"><img class="thumb" alt="Xem trước ảnh cần phân tích"><span class="meta"></span></span>
-        </label>
-        <div class="samples" data-for="astego"></div>
-      </div>
-      <div id="analyzeAlert"></div>
-      <details>
-        <summary>Cách đọc kết quả</summary>
-        <ul>
-          <li>Chi-square: sau khi ghi đè bit ngẫu nhiên, hai giá trị 2k và 2k+1 có số lần xuất hiện gần bằng nhau. Ảnh tự nhiên thì không, nên p-value gần 0. p-value lớn là đáng ngờ.</li>
-          <li>Đường cong theo tiền tố: với nhúng tuần tự, p-value cao ở đoạn đầu ảnh rồi tụt xuống đúng chỗ tin kết thúc.</li>
-          <li>RS: ước lượng tỉ lệ mẫu mang bit giấu; ảnh sạch cho giá trị gần 0. Khi bit giấu rải đều, ước lượng khá chính xác (lệch cỡ ±0,01). Khi tin dồn vào đầu ảnh (nhúng tuần tự), con số trung bình vẫn đúng nhưng từng ảnh có thể lệch tới ±0,1.</li>
-          <li>Kết quả âm tính không chứng minh ảnh sạch. Một số ảnh gốc cũng có thể cho dương tính giả.</li>
-        </ul>
-      </details>
-    </div>
-    <div id="analyzeOut"><div class="empty">Kết quả phân tích sẽ hiện ở đây.</div></div>
-  </div>
-</section>
+            <details>
+              <summary>Tùy chọn nâng cao</summary>
+              <div class="field">
+                <label for="kdf">Hàm làm chậm mật khẩu (KDF)</label
+                ><select id="kdf"></select>
+                <span class="hint"
+                  >Cả hai đều chống dò mật khẩu bằng cách tốn bộ nhớ. Khi trích
+                  xuất, công cụ tự thử cả hai.</span
+                >
+              </div>
+            </details>
 
-<!-- ============ SO SÁNH ============ -->
-<section id="tab-compare" role="tabpanel" aria-labelledby="t-compare" hidden>
-  <h2 class="page-title">So sánh ảnh gốc với ảnh đã giấu tin</h2>
-  <p class="lead">Xem chính xác những điểm ảnh nào bị thay đổi và mức thay đổi so với mắt thường có thể thấy.</p>
-  <div class="grid">
-    <form id="compareForm" class="col-in">
-      <div class="field">
-        <span class="lbl">Ảnh gốc</span>
-        <label class="drop" id="ccover">
-          <input class="sr" type="file" accept="image/*">
-          <span class="when-empty"><strong>Chọn ảnh gốc</strong>Ảnh trước khi giấu tin</span>
-          <span class="when-has"><img class="thumb" alt="Xem trước ảnh gốc"><span class="meta"></span></span>
-        </label>
-      </div>
-      <div class="field">
-        <span class="lbl">Ảnh đã giấu tin</span>
-        <label class="drop" id="cstego">
-          <input class="sr" type="file" accept="image/*">
-          <span class="when-empty"><strong>Chọn ảnh đã giấu tin</strong>Phải cùng kích thước với ảnh gốc</span>
-          <span class="when-has"><img class="thumb" alt="Xem trước ảnh đã giấu tin"><span class="meta"></span></span>
-        </label>
-      </div>
-      <div id="compareAlert"></div>
-      <div><button class="btn" id="compareBtn" type="submit">So sánh hai ảnh</button></div>
-    </form>
-    <div id="compareOut"><div class="empty">Kết quả so sánh sẽ hiện ở đây.</div></div>
-  </div>
-</section>
+            <div id="embedAlert"></div>
+            <div>
+              <button class="btn" id="embedBtn" type="submit">
+                Giấu tin vào ảnh
+              </button>
+            </div>
+          </form>
 
-</main>
-<p class="foot">StegoVault dùng cho học tập và nghiên cứu. Phương pháp LSB không chống được nén JPEG, đổi kích thước hay các bộ phát hiện dựa trên học sâu.</p>
+          <div id="embedOut">
+            <div class="empty">
+              Ảnh đã giấu tin sẽ hiện ở đây, kèm các chỉ số chất lượng.
+            </div>
+          </div>
+        </div>
+      </section>
 
-<script>
-(() => {
-'use strict';
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-const fmtInt = n => Number(n).toLocaleString('vi-VN');
-const fmtBytes = n => n < 1024 ? `${n} byte` : n < 1048576 ? `${(n / 1024).toFixed(1)} KiB` : `${(n / 1048576).toFixed(2)} MiB`;
-const el = (tag, props = {}, ...kids) => {
-  const e = document.createElement(tag);
-  for (const [k, v] of Object.entries(props)) {
-    if (k === 'class') e.className = v; else if (k === 'text') e.textContent = v; else e.setAttribute(k, v);
-  }
-  kids.forEach(k => e.append(k));
-  return e;
-};
+      <!-- ============ TRÍCH XUẤT ============ -->
+      <section
+        id="tab-extract"
+        role="tabpanel"
+        aria-labelledby="t-extract"
+        hidden
+      >
+        <h2 class="page-title">Lấy tin ra khỏi ảnh</h2>
+        <p class="lead">
+          Cần đúng ảnh PNG gốc đã giấu tin và đúng mật khẩu. Nếu ảnh đã bị nén
+          JPEG, đổi kích thước hoặc chỉnh sửa, các bit ẩn bị hỏng và việc giải
+          mã sẽ thất bại.
+        </p>
+        <div class="grid">
+          <form id="extractForm" class="col-in" autocomplete="off">
+            <div class="field">
+              <span class="lbl">Ảnh chứa tin</span>
+              <label class="drop" id="xstego">
+                <input class="sr" type="file" accept="image/*" />
+                <span class="when-empty"
+                  ><strong>Chọn hoặc kéo thả ảnh vào đây</strong>Nên dùng đúng
+                  file PNG đã tạo ở bước giấu tin</span
+                >
+                <span class="when-has"
+                  ><img class="thumb" alt="Xem trước ảnh chứa tin" /><span
+                    class="bar"
+                    ><span class="meta"></span
+                    ><span class="change">Đổi ảnh</span></span
+                  ></span
+                >
+              </label>
+            </div>
+            <div class="field">
+              <label for="xpw">Mật khẩu</label>
+              <div class="pw">
+                <input
+                  id="xpw"
+                  type="password"
+                  autocomplete="off"
+                  spellcheck="false"
+                /><button
+                  type="button"
+                  data-toggle="xpw"
+                  aria-label="Hiện hoặc ẩn mật khẩu"
+                >
+                  Hiện
+                </button>
+              </div>
+            </div>
+            <div id="extractAlert"></div>
+            <div>
+              <button class="btn" id="extractBtn" type="submit">
+                Trích xuất và giải mã
+              </button>
+            </div>
+          </form>
+          <div id="extractOut">
+            <div class="empty">
+              Tin nhắn hoặc file lấy ra được sẽ hiện ở đây.
+            </div>
+          </div>
+        </div>
+      </section>
 
-/* ---------- gọi API ---------- */
-async function api(path, body) {
-  let r;
-  try {
-    r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  } catch (_) { throw new Error('Không kết nối được tới máy chủ StegoVault. Hãy kiểm tra cửa sổ dòng lệnh còn đang chạy.'); }
-  let data = null;
-  try { data = await r.json(); } catch (_) { /* để báo lỗi chung bên dưới */ }
-  if (!r.ok) throw new Error((data && data.error) || 'Máy chủ trả về lỗi không xác định.');
-  return data;
-}
-const fileToB64 = blob => new Promise((res, rej) => {
-  const fr = new FileReader();
-  fr.onload = () => res(String(fr.result).split(',')[1]);
-  fr.onerror = () => rej(new Error('Không đọc được file.'));
-  fr.readAsDataURL(blob);
-});
-function b64ToBlob(b64, type) {
-  const bin = atob(b64), u8 = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
-  return new Blob([u8], { type });
-}
+      <!-- ============ PHÂN TÍCH ============ -->
+      <section
+        id="tab-analyze"
+        role="tabpanel"
+        aria-labelledby="t-analyze"
+        hidden
+      >
+        <h2 class="page-title">Soi một ảnh có bị giấu tin LSB hay không</h2>
+        <p class="lead">
+          Đây là phía người dò: kiểm định chi-square của Westfeld và Pfitzmann,
+          phân tích RS của Fridrich và mặt phẳng bit thấp nhất. Các bài kiểm tra
+          này bắt tốt LSB ghi đè nhưng gần như bỏ sót LSB matching.
+        </p>
+        <div class="grid">
+          <div class="col-in">
+            <div class="field">
+              <span class="lbl">Ảnh cần phân tích</span>
+              <label class="drop" id="astego">
+                <input class="sr" type="file" accept="image/*" />
+                <span class="when-empty"
+                  ><strong>Chọn hoặc kéo thả ảnh vào đây</strong>Phân tích chạy
+                  ngay khi ảnh được nạp</span
+                >
+                <span class="when-has"
+                  ><img class="thumb" alt="Xem trước ảnh cần phân tích" /><span
+                    class="bar"
+                    ><span class="meta"></span
+                    ><span class="change">Đổi ảnh</span></span
+                  ></span
+                >
+              </label>
+            </div>
+            <div id="analyzeAlert"></div>
+            <details>
+              <summary>Cách đọc kết quả</summary>
+              <ul>
+                <li>
+                  Chi-square: sau khi ghi đè bit ngẫu nhiên, hai giá trị 2k và
+                  2k+1 có số lần xuất hiện gần bằng nhau. Ảnh tự nhiên thì
+                  không, nên p-value gần 0. p-value lớn là đáng ngờ.
+                </li>
+                <li>
+                  Đường cong theo tiền tố: với nhúng tuần tự, p-value cao ở đoạn
+                  đầu ảnh rồi tụt xuống đúng chỗ tin kết thúc.
+                </li>
+                <li>
+                  RS: ước lượng tỉ lệ mẫu mang bit giấu; ảnh sạch cho giá trị
+                  gần 0. Khi bit giấu rải đều, ước lượng khá chính xác (lệch cỡ
+                  ±0,01). Khi tin dồn vào đầu ảnh (nhúng tuần tự), con số trung
+                  bình vẫn đúng nhưng từng ảnh có thể lệch tới ±0,1.
+                </li>
+                <li>
+                  Kết quả âm tính không chứng minh ảnh sạch. Một số ảnh gốc cũng
+                  có thể cho dương tính giả.
+                </li>
+              </ul>
+            </details>
+          </div>
+          <div id="analyzeOut">
+            <div class="empty">Kết quả phân tích sẽ hiện ở đây.</div>
+          </div>
+        </div>
+      </section>
 
-/* ---------- thông báo lỗi / bận ---------- */
-const ICON_ERR = '<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 5.5v5.5M10 13.6v.9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-function showError(id, msg) {
-  const box = $('#' + id);
-  box.replaceChildren();
-  if (!msg) return;
-  const a = el('div', { class: 'alert', role: 'alert' });
-  a.innerHTML = ICON_ERR;
-  a.append(el('span', { text: msg }));
-  box.append(a);
-}
-function setBusy(btn, busy, label) {
-  if (busy) { btn.dataset.label = btn.textContent; btn.replaceChildren(el('span', { class: 'spin' }), label); btn.disabled = true; }
-  else { btn.textContent = btn.dataset.label || btn.textContent; btn.disabled = false; }
-}
+      <!-- ============ SO SÁNH ============ -->
+      <section
+        id="tab-compare"
+        role="tabpanel"
+        aria-labelledby="t-compare"
+        hidden
+      >
+        <h2 class="page-title">So sánh ảnh gốc với ảnh đã giấu tin</h2>
+        <p class="lead">
+          Xem chính xác những điểm ảnh nào bị thay đổi và mức thay đổi so với
+          mắt thường có thể thấy.
+        </p>
+        <div class="grid">
+          <form id="compareForm" class="col-in">
+            <div class="field">
+              <span class="lbl">Ảnh gốc</span>
+              <label class="drop" id="ccover">
+                <input class="sr" type="file" accept="image/*" />
+                <span class="when-empty"
+                  ><strong>Chọn ảnh gốc</strong>Ảnh trước khi giấu tin</span
+                >
+                <span class="when-has"
+                  ><img class="thumb" alt="Xem trước ảnh gốc" /><span
+                    class="bar"
+                    ><span class="meta"></span
+                    ><span class="change">Đổi ảnh</span></span
+                  ></span
+                >
+              </label>
+            </div>
+            <div class="field">
+              <span class="lbl">Ảnh đã giấu tin</span>
+              <label class="drop" id="cstego">
+                <input class="sr" type="file" accept="image/*" />
+                <span class="when-empty"
+                  ><strong>Chọn ảnh đã giấu tin</strong>Phải cùng kích thước với
+                  ảnh gốc</span
+                >
+                <span class="when-has"
+                  ><img class="thumb" alt="Xem trước ảnh đã giấu tin" /><span
+                    class="bar"
+                    ><span class="meta"></span
+                    ><span class="change">Đổi ảnh</span></span
+                  ></span
+                >
+              </label>
+            </div>
+            <div id="compareAlert"></div>
+            <div>
+              <button class="btn" id="compareBtn" type="submit">
+                So sánh hai ảnh
+              </button>
+            </div>
+          </form>
+          <div id="compareOut">
+            <div class="empty">Kết quả so sánh sẽ hiện ở đây.</div>
+          </div>
+        </div>
+      </section>
+    </main>
 
-/* ---------- tab ---------- */
-const TABS = ['embed', 'extract', 'analyze', 'compare'];
-function show(tab) {
-  TABS.forEach(t => {
-    const on = t === tab;
-    $('#tab-' + t).hidden = !on;
-    const b = $('#t-' + t);
-    b.setAttribute('aria-selected', on ? 'true' : 'false');
-    b.tabIndex = on ? 0 : -1;
-  });
-}
-TABS.forEach(t => {
-  $('#t-' + t).addEventListener('click', () => show(t));
-  $('#t-' + t).addEventListener('keydown', e => {
-    const i = TABS.indexOf(t);
-    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-      const n = TABS[(i + (e.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length];
-      show(n); $('#t-' + n).focus();
-    }
-  });
-});
+    <script>
+      (() => {
+        "use strict";
+        const $ = (s, r = document) => r.querySelector(s);
+        const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+        const fmtInt = (n) => Number(n).toLocaleString("vi-VN");
+        const fmtBytes = (n) =>
+          n < 1024
+            ? `${n} byte`
+            : n < 1048576
+              ? `${(n / 1024).toFixed(1)} KiB`
+              : `${(n / 1048576).toFixed(2)} MiB`;
+        const el = (tag, props = {}, ...kids) => {
+          const e = document.createElement(tag);
+          for (const [k, v] of Object.entries(props)) {
+            if (k === "class") e.className = v;
+            else if (k === "text") e.textContent = v;
+            else e.setAttribute(k, v);
+          }
+          kids.forEach((k) => e.append(k));
+          return e;
+        };
 
-/* ---------- ô chọn ảnh ---------- */
-const slots = {};
-const onSlot = {};
-function setSlot(id, data) {
-  const root = $('#' + id);
-  if (slots[id] && slots[id].url) URL.revokeObjectURL(slots[id].url);
-  slots[id] = data;
-  const img = $('img.thumb', root);
-  img.onload = () => {
-    data.w = img.naturalWidth; data.h = img.naturalHeight;
-    $('.meta', root).textContent = `${data.name}, ${fmtInt(data.w)}×${fmtInt(data.h)} điểm ảnh`;
-    if (onSlot[id]) onSlot[id](data);
-  };
-  img.src = data.url;
-  root.classList.add('has');
-}
-async function takeBlob(id, blob, name) {
-  const b64 = await fileToB64(blob);
-  setSlot(id, { b64, url: URL.createObjectURL(blob), name });
-}
-function initSlot(id, handler) {
-  const root = $('#' + id), input = $('input[type=file]', root);
-  onSlot[id] = handler;
-  input.addEventListener('change', () => { if (input.files[0]) takeBlob(id, input.files[0], input.files[0].name); input.value = ''; });
-  root.addEventListener('dragover', e => { e.preventDefault(); root.classList.add('drag'); });
-  root.addEventListener('dragleave', () => root.classList.remove('drag'));
-  root.addEventListener('drop', e => {
-    e.preventDefault(); root.classList.remove('drag');
-    const f = e.dataTransfer.files[0];
-    if (f) takeBlob(id, f, f.name);
-  });
-}
-async function loadSamples() {
-  let names = [];
-  try { names = (await (await fetch('/api/samples')).json()).samples || []; } catch (_) { return; }
-  $$('.samples').forEach(box => {
-    if (!names.length) return;
-    box.append('Thử ảnh mẫu:');
-    names.forEach(n => {
-      const b = el('button', { class: 'chip', type: 'button', text: n.replace('.png', '') });
-      b.addEventListener('click', async () => {
-        const blob = await (await fetch('/samples/' + n)).blob();
-        takeBlob(box.dataset.for, blob, n);
-      });
-      box.append(b);
-    });
-  });
-}
+        /* ---------- gọi API ---------- */
+        async function api(path, body) {
+          let r;
+          try {
+            r = await fetch(path, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body),
+            });
+          } catch (_) {
+            throw new Error(
+              "Không kết nối được tới máy chủ StegoVault. Hãy kiểm tra cửa sổ dòng lệnh còn đang chạy.",
+            );
+          }
+          let data = null;
+          try {
+            data = await r.json();
+          } catch (_) {
+            /* để báo lỗi chung bên dưới */
+          }
+          if (!r.ok)
+            throw new Error(
+              (data && data.error) || "Máy chủ trả về lỗi không xác định.",
+            );
+          return data;
+        }
+        const fileToB64 = (blob) =>
+          new Promise((res, rej) => {
+            const fr = new FileReader();
+            fr.onload = () => res(String(fr.result).split(",")[1]);
+            fr.onerror = () => rej(new Error("Không đọc được file."));
+            fr.readAsDataURL(blob);
+          });
+        function b64ToBytes(b64) {
+          const bin = atob(b64),
+            u8 = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+          return u8;
+        }
+        const b64ToBlob = (b64, type) => new Blob([b64ToBytes(b64)], { type });
 
-/* ---------- reveal ---------- */
-function makeReveal(host, baseUrl, overUrl, baseLabel, overLabel, w, h, ariaLabel) {
-  host.replaceChildren();
-  const stage = el('div', { class: 'stage' });
-  const rv = el('div', { class: 'reveal' });
-  const base = el('img', { alt: baseLabel }); base.src = baseUrl;
-  const over = el('img', { class: 'rv-over', alt: overLabel }); over.src = overUrl;
-  const range = el('input', { type: 'range', min: '0', max: '100', value: '50', 'aria-label': ariaLabel });
-  range.addEventListener('input', () => rv.style.setProperty('--pos', range.value + '%'));
-  rv.append(base, over, el('span', { class: 'rv-tag l', text: baseLabel }), el('span', { class: 'rv-tag r', text: overLabel }),
-            el('span', { class: 'rv-handle', 'aria-hidden': 'true' }), range);
-  stage.append(rv);
+        /* Gói nhiều file thành .zip ngay trong trình duyệt (kiểu STORE, không nén; đủ cho việc tải về). */
+        const CRC_TABLE = (() => {
+          const t = new Uint32Array(256);
+          for (let n = 0; n < 256; n++) {
+            let c = n;
+            for (let k = 0; k < 8; k++)
+              c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+            t[n] = c >>> 0;
+          }
+          return t;
+        })();
+        function crc32(u8) {
+          let c = 0xffffffff;
+          for (let i = 0; i < u8.length; i++)
+            c = CRC_TABLE[(c ^ u8[i]) & 255] ^ (c >>> 8);
+          return (c ^ 0xffffffff) >>> 0;
+        }
+        function makeZip(entries) {
+          const enc = new TextEncoder();
+          const u16 = (v) => [v & 255, (v >>> 8) & 255];
+          const u32 = (v) => [
+            v & 255,
+            (v >>> 8) & 255,
+            (v >>> 16) & 255,
+            (v >>> 24) & 255,
+          ];
+          const parts = [],
+            central = [];
+          let offset = 0;
+          for (const e of entries) {
+            const name = enc.encode(e.name),
+              crc = crc32(e.data),
+              size = e.data.length;
+            // cờ 0x0800: tên file là UTF-8; ngày DOS 0x0021 = 01/01/1980 (không lưu thời gian thật)
+            const local = new Uint8Array([
+              ...u32(0x04034b50),
+              ...u16(20),
+              ...u16(0x0800),
+              ...u16(0),
+              ...u16(0),
+              ...u16(0x21),
+              ...u32(crc),
+              ...u32(size),
+              ...u32(size),
+              ...u16(name.length),
+              ...u16(0),
+            ]);
+            parts.push(local, name, e.data);
+            central.push(
+              new Uint8Array([
+                ...u32(0x02014b50),
+                ...u16(20),
+                ...u16(20),
+                ...u16(0x0800),
+                ...u16(0),
+                ...u16(0),
+                ...u16(0x21),
+                ...u32(crc),
+                ...u32(size),
+                ...u32(size),
+                ...u16(name.length),
+                ...u16(0),
+                ...u16(0),
+                ...u16(0),
+                ...u16(0),
+                ...u32(0),
+                ...u32(offset),
+              ]),
+              name,
+            );
+            offset += local.length + name.length + size;
+          }
+          const cdSize = central.reduce((n, a) => n + a.length, 0);
+          const end = new Uint8Array([
+            ...u32(0x06054b50),
+            ...u16(0),
+            ...u16(0),
+            ...u16(entries.length),
+            ...u16(entries.length),
+            ...u32(cdSize),
+            ...u32(offset),
+            ...u16(0),
+          ]);
+          return new Blob([...parts, ...central, end], {
+            type: "application/zip",
+          });
+        }
 
-  const fit = el('input', { type: 'radio', name: 'zoom' + Math.random().toString(36).slice(2), value: 'fit', checked: '' });
-  const act = el('input', { type: 'radio', name: fit.name, value: 'act' });
-  const apply = () => { rv.style.width = act.checked ? w + 'px' : ''; rv.style.maxWidth = act.checked ? 'none' : '100%'; };
-  fit.addEventListener('change', apply); act.addEventListener('change', apply);
-  const seg = el('div', { class: 'seg', role: 'radiogroup', 'aria-label': 'Mức phóng' },
-    el('label', {}, fit, el('span', { text: 'Vừa khung' })), el('label', {}, act, el('span', { text: 'Điểm ảnh thật (1:1)' })));
-  const tools = el('div', { class: 'view-tools' }, seg, el('span', { text: 'Kéo thanh trượt trên ảnh để lật qua lại.' }));
-  host.append(stage, tools);
-}
+        /* ---------- thông báo lỗi / bận ---------- */
+        const ICON_ERR =
+          '<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 5.5v5.5M10 13.6v.9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+        function showError(id, msg) {
+          const box = $("#" + id);
+          box.replaceChildren();
+          if (!msg) return;
+          const a = el("div", { class: "alert", role: "alert" });
+          a.innerHTML = ICON_ERR;
+          a.append(el("span", { text: msg }));
+          box.append(a);
+        }
+        function setBusy(btn, busy, label) {
+          if (busy) {
+            btn.dataset.label = btn.textContent;
+            btn.replaceChildren(el("span", { class: "spin" }), label);
+            btn.disabled = true;
+          } else {
+            btn.textContent = btn.dataset.label || btn.textContent;
+            btn.disabled = false;
+          }
+        }
 
-/* ============ GIẤU TIN ============ */
-let capacity = 0, secretFile = null;
-function updateMeter() {
-  const kind = $('input[name=kind]:checked').value;
-  const used = kind === 'file' ? (secretFile ? secretFile.size : 0) : new TextEncoder().encode($('#msgText').value).length;
-  const m = $('#meter'), t = $('#meterText');
-  m.classList.remove('warn', 'over');
-  if (!capacity) { $('i', m).style.width = '0'; t.textContent = 'Chọn ảnh để xem dung lượng.'; return; }
-  const ratio = used / capacity;
-  $('i', m).style.width = Math.min(100, ratio * 100) + '%';
-  if (ratio > 1) m.classList.add('over'); else if (ratio > 0.8) m.classList.add('warn');
-  const nenNote = ratio > 1 ? ' Tin có thể vẫn vừa nếu nén được; nếu không, hãy dùng ảnh lớn hơn.' : '';
-  t.textContent = `Đã dùng ${fmtBytes(used)} trên tối đa khoảng ${fmtBytes(capacity)} (chưa tính nén).${nenNote}`;
-}
-initSlot('cover', async s => {
-  showError('embedAlert', '');
-  try {
-    const r = await api('/api/capacity', { image: s.b64 });
-    capacity = r.capacity_bytes;
-    $('#capText').textContent = `Ảnh này chứa tối đa khoảng ${fmtBytes(capacity)} tin.`;
-    $('#alphaNote').hidden = !r.alpha_dropped;
-  } catch (e) { capacity = 0; showError('embedAlert', e.message); }
-  updateMeter();
-});
-$('#msgText').addEventListener('input', updateMeter);
-$$('input[name=kind]').forEach(r => r.addEventListener('change', () => {
-  const file = $('input[name=kind]:checked').value === 'file';
-  $('#msgText').hidden = file;
-  if (file) $('#msgFile').click();
-  updateMeter();
-}));
-$('#msgFile').addEventListener('change', e => { secretFile = e.target.files[0] || null; updateMeter(); });
-$$('button[data-toggle]').forEach(b => b.addEventListener('click', () => {
-  const i = $('#' + b.dataset.toggle);
-  const show = i.type === 'password';
-  i.type = show ? 'text' : 'password';
-  b.textContent = show ? 'Ẩn' : 'Hiện';
-}));
-$('#pw').addEventListener('input', () => {
-  const n = $('#pw').value.length;
-  $('#pwHint').textContent = n === 0 ? 'Dùng ít nhất 12 ký tự. Quên mật khẩu thì không thể lấy lại tin.'
-    : n < 12 ? `Mật khẩu mới có ${n} ký tự; nên dùng ít nhất 12.` : `Độ dài ${n} ký tự là ổn.`;
-});
+        /* ---------- tab ---------- */
+        const TABS = ["embed", "extract", "analyze", "compare"];
+        function show(tab) {
+          TABS.forEach((t) => {
+            const on = t === tab;
+            $("#tab-" + t).hidden = !on;
+            const b = $("#t-" + t);
+            b.setAttribute("aria-selected", on ? "true" : "false");
+            b.tabIndex = on ? 0 : -1;
+          });
+        }
+        TABS.forEach((t) => {
+          $("#t-" + t).addEventListener("click", () => show(t));
+          $("#t-" + t).addEventListener("keydown", (e) => {
+            const i = TABS.indexOf(t);
+            if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+              const n =
+                TABS[
+                  (i + (e.key === "ArrowRight" ? 1 : TABS.length - 1)) %
+                    TABS.length
+                ];
+              show(n);
+              $("#t-" + n).focus();
+            }
+          });
+        });
 
-function renderEmbed(r) {
-  const out = $('#embedOut');
-  out.replaceChildren();
-  const stegoBlob = b64ToBlob(r.stego_png, 'image/png');
-  const url = URL.createObjectURL(stegoBlob);
-  const coverName = (slots.cover.name || 'anh').replace(/\.[^.]+$/, '');
-  const m = r.metrics, s = r.stats;
+        /* ---------- ô chọn ảnh ---------- */
+        const slots = {};
+        const onSlot = {};
+        function setSlot(id, data) {
+          const root = $("#" + id);
+          if (slots[id] && slots[id].url) URL.revokeObjectURL(slots[id].url);
+          slots[id] = data;
+          const img = $("img.thumb", root);
+          img.onload = () => {
+            data.w = img.naturalWidth;
+            data.h = img.naturalHeight;
+            $(".meta", root).textContent =
+              `${data.name}, ${fmtInt(data.w)}×${fmtInt(data.h)} điểm ảnh`;
+            if (onSlot[id]) onSlot[id](data);
+          };
+          img.src = data.url;
+          root.classList.add("has");
+        }
+        async function takeBlob(id, blob, name, auto = false) {
+          const b64 = await fileToB64(blob);
+          setSlot(id, { b64, url: URL.createObjectURL(blob), name, auto }); // auto: nạp từ kết quả giấu tin, không phải do người dùng chọn
+        }
+        function clearSlot(id) {
+          const root = $("#" + id);
+          if (slots[id] && slots[id].url) URL.revokeObjectURL(slots[id].url);
+          delete slots[id];
+          root.classList.remove("has");
+          $("img.thumb", root).removeAttribute("src");
+          $(".meta", root).textContent = "";
+        }
+        const EMPTY_TEXT = {
+          embedOut: "Ảnh đã giấu tin sẽ hiện ở đây, kèm các chỉ số chất lượng.",
+          extractOut: "Tin nhắn hoặc file lấy ra được sẽ hiện ở đây.",
+          analyzeOut: "Kết quả phân tích sẽ hiện ở đây.",
+          compareOut: "Kết quả so sánh sẽ hiện ở đây.",
+        };
+        function resetOut(id, alertId) {
+          $("#" + id).replaceChildren(
+            el("div", { class: "empty", text: EMPTY_TEXT[id] }),
+          );
+          if (alertId) showError(alertId, "");
+        }
+        let analyzeSeq = 0;
+        /* Sau mỗi lần giấu tin mới, các tab còn lại không được giữ kết quả của ảnh cũ. */
+        function resetAfterEmbed() {
+          clearSlot("xstego");
+          $("#xpw").value = "";
+          resetOut("extractOut", "extractAlert");
+          ["astego", "ccover", "cstego"].forEach((id) => {
+            if (slots[id] && slots[id].auto) clearSlot(id);
+          });
+          if (!slots.astego) {
+            analyzeSeq++;
+            resetOut("analyzeOut", "analyzeAlert");
+          }
+          if (!slots.ccover || !slots.cstego)
+            resetOut("compareOut", "compareAlert");
+        }
+        function initSlot(id, handler) {
+          const root = $("#" + id),
+            input = $("input[type=file]", root);
+          onSlot[id] = handler;
+          input.addEventListener("change", () => {
+            if (input.files[0])
+              takeBlob(id, input.files[0], input.files[0].name);
+            input.value = "";
+          });
+          root.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            root.classList.add("drag");
+          });
+          root.addEventListener("dragleave", () =>
+            root.classList.remove("drag"),
+          );
+          root.addEventListener("drop", (e) => {
+            e.preventDefault();
+            root.classList.remove("drag");
+            const f = e.dataTransfer.files[0];
+            if (f) takeBlob(id, f, f.name);
+          });
+        }
+        /* ---------- reveal ---------- */
+        function makeReveal(
+          host,
+          baseUrl,
+          overUrl,
+          baseLabel,
+          overLabel,
+          w,
+          h,
+          ariaLabel,
+        ) {
+          host.replaceChildren();
+          const stage = el("div", { class: "stage" });
+          const rv = el("div", { class: "reveal" });
+          const base = el("img", { alt: baseLabel });
+          base.src = baseUrl;
+          const over = el("img", { class: "rv-over", alt: overLabel });
+          over.src = overUrl;
+          const range = el("input", {
+            type: "range",
+            min: "0",
+            max: "100",
+            value: "50",
+            "aria-label": ariaLabel,
+          });
+          range.addEventListener("input", () =>
+            rv.style.setProperty("--pos", range.value + "%"),
+          );
+          rv.append(
+            base,
+            over,
+            el("span", { class: "rv-tag l", text: baseLabel }),
+            el("span", { class: "rv-tag r", text: overLabel }),
+            el("span", { class: "rv-handle", "aria-hidden": "true" }),
+            range,
+          );
+          stage.append(rv);
 
-  const panel = el('div', { class: 'panel' });
-  panel.append(el('h2', { text: 'Đã giấu xong' }));
-  const img = el('img', { class: 'result-img', alt: 'Ảnh đã giấu tin' }); img.src = url;
-  panel.append(img);
+          const fit = el("input", {
+            type: "radio",
+            name: "zoom" + Math.random().toString(36).slice(2),
+            value: "fit",
+            checked: "",
+          });
+          const act = el("input", {
+            type: "radio",
+            name: fit.name,
+            value: "act",
+          });
+          const apply = () => {
+            rv.style.width = act.checked ? w + "px" : "";
+            rv.style.maxWidth = act.checked ? "none" : "100%";
+          };
+          fit.addEventListener("change", apply);
+          act.addEventListener("change", apply);
+          const seg = el(
+            "div",
+            { class: "seg", role: "radiogroup", "aria-label": "Mức phóng" },
+            el("label", {}, fit, el("span", { text: "Vừa khung" })),
+            el("label", {}, act, el("span", { text: "Điểm ảnh thật (1:1)" })),
+          );
+          const tools = el(
+            "div",
+            { class: "view-tools" },
+            seg,
+            el("span", { text: "Kéo thanh trượt trên ảnh để lật qua lại." }),
+          );
+          host.append(stage, tools);
+        }
 
-  const dl = el('dl', { class: 'stats' });
-  const row = (k, v) => { dl.append(el('dt', { text: k }), el('dd', { text: v })); };
-  row('Cách giấu', s.method_label);
-  row('Dữ liệu đã giấu', `${fmtBytes(s.message_bytes)} (chiếm ${(s.utilization * 100).toFixed(2)}% dung lượng)`);
-  row('Mẫu màu bị đổi', `${fmtInt(m.changed_samples)} (${(m.changed_ratio * 100).toFixed(3)}% số mẫu), lệch tối đa ${m.max_abs_diff} trên thang 255`);
-  row('PSNR', m.psnr_db == null ? 'Không đo được' : `${m.psnr_db.toFixed(2)} dB (trên 50 dB: mắt thường không thấy khác biệt)`);
-  row('SSIM', m.ssim == null ? 'Bỏ qua do ảnh lớn' : m.ssim.toFixed(6));
-  panel.append(dl);
-  if (r.alpha_dropped) panel.append(el('div', { class: 'note', text: 'Phần trong suốt của ảnh gốc đã bị bỏ.' }));
+        /* ============ GIẤU TIN ============ */
+        let capacity = 0;
+        const MAX_FILES = 256;
+        let secretFiles = [];
+        function updateMeter() {
+          const kind = $("input[name=kind]:checked").value;
+          const used =
+            kind === "file"
+              ? secretFiles.reduce((n, f) => n + f.size, 0)
+              : new TextEncoder().encode($("#msgText").value).length;
+          const m = $("#meter"),
+            t = $("#meterText");
+          m.classList.remove("warn", "over");
+          if (!capacity) {
+            $("i", m).style.width = "0";
+            t.textContent = "Chọn ảnh để xem dung lượng.";
+            return;
+          }
+          const ratio = used / capacity;
+          $("i", m).style.width = Math.min(100, ratio * 100) + "%";
+          if (ratio > 1) m.classList.add("over");
+          else if (ratio > 0.8) m.classList.add("warn");
+          const nenNote =
+            ratio > 1
+              ? " Tin có thể vẫn vừa nếu nén được; nếu không, hãy dùng ảnh lớn hơn."
+              : "";
+          const files =
+            kind === "file" && secretFiles.length > 1
+              ? ` (${secretFiles.length} file)`
+              : "";
+          t.textContent = `Đã dùng ${fmtBytes(used)}${files} trên tối đa khoảng ${fmtBytes(capacity)} (chưa tính nén).${nenNote}`;
+        }
+        function renderFiles() {
+          const ul = $("#fileList");
+          ul.replaceChildren();
+          secretFiles.forEach((f, i) => {
+            const rm = el("button", {
+              type: "button",
+              class: "btn ghost small",
+              "aria-label": `Bỏ ${f.name}`,
+              text: "Bỏ",
+            });
+            rm.addEventListener("click", () => {
+              secretFiles.splice(i, 1);
+              renderFiles();
+            });
+            ul.append(
+              el(
+                "li",
+                {},
+                el("span", { class: "fn", text: f.name }),
+                el("span", { class: "fs", text: fmtBytes(f.size) }),
+                rm,
+              ),
+            );
+          });
+          const total = secretFiles.reduce((n, f) => n + f.size, 0);
+          $("#addFiles").textContent = secretFiles.length
+            ? "Thêm file…"
+            : "Chọn file…";
+          $("#clearFiles").hidden = secretFiles.length < 2;
+          $("#fileHint").textContent = secretFiles.length
+            ? `${secretFiles.length} file, tổng ${fmtBytes(total)}. Bấm "Bỏ" để loại một file, hoặc "Thêm file" để chọn thêm.`
+            : "Chọn một hoặc nhiều file, hoặc kéo thả vào đây.";
+          updateMeter();
+        }
+        function addFiles(list) {
+          const room = MAX_FILES - secretFiles.length;
+          const incoming = Array.from(list);
+          secretFiles.push(...incoming.slice(0, Math.max(0, room)));
+          showError(
+            "embedAlert",
+            incoming.length > room
+              ? `Chỉ giấu được tối đa ${MAX_FILES} file một lần; các file thừa đã bị bỏ qua.`
+              : "",
+          );
+          renderFiles();
+        }
+        $("#addFiles").addEventListener("click", () => $("#msgFile").click());
+        $("#clearFiles").addEventListener("click", () => {
+          secretFiles = [];
+          renderFiles();
+        });
+        $("#msgFile").addEventListener("change", (e) => {
+          addFiles(e.target.files);
+          e.target.value = "";
+        });
+        {
+          const box = $("#fileBox");
+          box.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            box.classList.add("drag");
+          });
+          box.addEventListener("dragleave", () => box.classList.remove("drag"));
+          box.addEventListener("drop", (e) => {
+            e.preventDefault();
+            box.classList.remove("drag");
+            addFiles(e.dataTransfer.files);
+          });
+        }
+        initSlot("cover", async (s) => {
+          showError("embedAlert", "");
+          resetOut("embedOut");
+          try {
+            const r = await api("/api/capacity", { image: s.b64 });
+            capacity = r.capacity_bytes;
+            $("#capText").textContent =
+              `Ảnh này chứa tối đa khoảng ${fmtBytes(capacity)} tin.`;
+            $("#alphaNote").hidden = !r.alpha_dropped;
+          } catch (e) {
+            capacity = 0;
+            showError("embedAlert", e.message);
+          }
+          updateMeter();
+        });
+        $("#msgText").addEventListener("input", updateMeter);
+        $$("input[name=kind]").forEach((r) =>
+          r.addEventListener("change", () => {
+            const file = $("input[name=kind]:checked").value === "file";
+            $("#msgText").hidden = file;
+            $("#fileBox").hidden = !file;
+            updateMeter();
+          }),
+        );
+        $$("button[data-toggle]").forEach((b) =>
+          b.addEventListener("click", () => {
+            const i = $("#" + b.dataset.toggle);
+            const show = i.type === "password";
+            i.type = show ? "text" : "password";
+            b.textContent = show ? "Ẩn" : "Hiện";
+          }),
+        );
+        $("#pw").addEventListener("input", () => {
+          const n = $("#pw").value.length;
+          $("#pwHint").textContent =
+            n === 0
+              ? "Dùng ít nhất 12 ký tự. Quên mật khẩu thì không thể lấy lại tin."
+              : n < 12
+                ? `Mật khẩu mới có ${n} ký tự; nên dùng ít nhất 12.`
+                : `Độ dài ${n} ký tự là ổn.`;
+        });
 
-  const act = el('div', { class: 'row', style: 'margin-top:16px' });
-  const dlb = el('a', { class: 'btn', href: url, download: coverName + '_stego.png', text: 'Tải ảnh PNG' });
-  dlb.style.textDecoration = 'none'; dlb.style.display = 'inline-block';
-  const mk = (label, fn) => { const b = el('button', { class: 'btn ghost small', type: 'button', text: label }); b.addEventListener('click', fn); return b; };
-  const toSlot = async (id, blob, name) => { await takeBlob(id, blob, name); };
-  act.append(dlb,
-    mk('Thử trích xuất', async () => { await toSlot('xstego', stegoBlob, coverName + '_stego.png'); show('extract'); }),
-    mk('Phân tích ảnh này', async () => { await toSlot('astego', stegoBlob, coverName + '_stego.png'); show('analyze'); }),
-    mk('So sánh với ảnh gốc', async () => {
-      await toSlot('cstego', stegoBlob, coverName + '_stego.png');
-      const c = slots.cover; await takeBlob('ccover', b64ToBlob(c.b64, 'image/png'), c.name);
-      show('compare');
-    }));
-  panel.append(act);
-  panel.append(el('p', { class: 'hint', style: 'margin-top:12px', text: 'Hãy lưu ảnh dưới dạng PNG và gửi đúng file này. Mạng xã hội và ứng dụng chat thường nén lại ảnh và làm mất tin.' }));
-  out.append(panel);
-}
-$('#embedForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  showError('embedAlert', '');
-  if (!slots.cover) return showError('embedAlert', 'Hãy chọn ảnh gốc trước.');
-  const pw = $('#pw').value;
-  if (!pw) return showError('embedAlert', 'Hãy nhập mật khẩu.');
-  const kind = $('input[name=kind]:checked').value;
-  const body = { image: slots.cover.b64, password: pw, method: $('input[name=method]:checked').value, kdf: $('#kdf').value };
-  const btn = $('#embedBtn');
-  try {
-    if (kind === 'file') {
-      if (!secretFile) return showError('embedAlert', 'Hãy chọn file cần giấu.');
-      body.file_b64 = await fileToB64(secretFile); body.filename = secretFile.name;
-    } else {
-      body.message = $('#msgText').value;
-      if (!body.message) return showError('embedAlert', 'Hãy nhập tin nhắn cần giấu.');
-    }
-    setBusy(btn, true, 'Đang mã hóa và giấu tin…');
-    renderEmbed(await api('/api/embed', body));
-  } catch (err) { showError('embedAlert', err.message); }
-  finally { if (btn.disabled) setBusy(btn, false); }
-});
+        function renderEmbed(r) {
+          const out = $("#embedOut");
+          out.replaceChildren();
+          const stegoBlob = b64ToBlob(r.stego_png, "image/png");
+          const url = URL.createObjectURL(stegoBlob);
+          const coverName = (slots.cover.name || "anh").replace(/\.[^.]+$/, "");
+          const m = r.metrics,
+            s = r.stats;
 
-/* ============ TRÍCH XUẤT ============ */
-initSlot('xstego', () => showError('extractAlert', ''));
-$('#extractForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  showError('extractAlert', '');
-  if (!slots.xstego) return showError('extractAlert', 'Hãy chọn ảnh chứa tin.');
-  if (!$('#xpw').value) return showError('extractAlert', 'Hãy nhập mật khẩu.');
-  const btn = $('#extractBtn'), out = $('#extractOut');
-  setBusy(btn, true, 'Đang giải mã…');
-  try {
-    const r = await api('/api/extract', { image: slots.xstego.b64, password: $('#xpw').value });
-    const panel = el('div', { class: 'panel' });
-    panel.append(el('h2', { text: r.kind === 'text' ? 'Tin nhắn đã giải mã' : 'File đã giải mã' }));
-    if (r.kind === 'text') {
-      panel.append(el('div', { class: 'out', text: r.text }));
-      const c = el('button', { class: 'btn ghost small', type: 'button', text: 'Sao chép', style: 'margin-top:12px' });
-      c.addEventListener('click', async () => {
-        try { await navigator.clipboard.writeText(r.text); c.textContent = 'Đã sao chép'; } catch (_) { c.textContent = 'Không sao chép được'; }
-        setTimeout(() => { c.textContent = 'Sao chép'; }, 1600);
-      });
-      panel.append(c);
-    } else {
-      const blob = b64ToBlob(r.data_b64, 'application/octet-stream');
-      const a = el('a', { class: 'btn', href: URL.createObjectURL(blob), download: r.filename, text: `Tải ${r.filename}` });
-      a.style.textDecoration = 'none'; a.style.display = 'inline-block';
-      panel.append(el('p', { text: `${r.filename}, ${fmtBytes(r.size)}` }), el('div', { style: 'margin-top:12px' }, a));
-    }
-    const dl = el('dl', { class: 'stats' });
-    dl.append(el('dt', { text: 'Xác thực' }), el('dd', { text: 'Thẻ AES-GCM khớp: nội dung nguyên vẹn, không bị sửa đổi' }),
-              el('dt', { text: 'KDF' }), el('dd', { text: r.kdf }),
-              el('dt', { text: 'Cách chọn vị trí' }), el('dd', { text: r.position_mode === 'sequential' ? 'Tuần tự' : 'Rải theo khóa (gồm cả LSB matching)' }));
-    panel.append(dl);
-    out.replaceChildren(panel);
-  } catch (err) {
-    showError('extractAlert', err.message);
-    out.replaceChildren(el('div', { class: 'empty', text: 'Chưa lấy được tin. Thông báo lỗi nằm ở cột bên trái.' }));
-  } finally { setBusy(btn, false); }
-});
+          const panel = el("div", { class: "panel" });
+          panel.append(el("h2", { text: "Đã giấu xong" }));
+          const img = el("img", {
+            class: "result-img",
+            alt: "Ảnh đã giấu tin",
+          });
+          img.src = url;
+          panel.append(img);
 
-/* ============ PHÂN TÍCH ============ */
-const LEVELS = {
-  high: { cls: 'bad', mark: '!', title: 'Nghi cao có tin giấu bằng LSB' },
-  medium: { cls: 'warn', mark: '?', title: 'Có dấu hiệu đáng ngờ' },
-  none: { cls: 'calm', mark: 'i', title: 'Chưa thấy dấu hiệu LSB ghi đè' },
-};
-function sci(p) { return p == null ? 'không có' : (p < 0.0001 && p > 0) ? p.toExponential(1) : p === 0 ? '0' : p.toFixed(4); }
+          const dl = el("dl", { class: "stats" });
+          const row = (k, v) => {
+            dl.append(el("dt", { text: k }), el("dd", { text: v }));
+          };
+          row("Cách giấu", s.method_label);
+          row(
+            "Dữ liệu đã giấu",
+            `${s.file_count > 1 ? s.file_count + " file, " : ""}${fmtBytes(s.message_bytes)} (chiếm ${(s.utilization * 100).toFixed(2)}% dung lượng)`,
+          );
+          row(
+            "Mẫu màu bị đổi",
+            `${fmtInt(m.changed_samples)} (${(m.changed_ratio * 100).toFixed(3)}% số mẫu), lệch tối đa ${m.max_abs_diff} trên thang 255`,
+          );
+          row(
+            "PSNR",
+            m.psnr_db == null
+              ? "Không đo được"
+              : `${m.psnr_db.toFixed(2)} dB (trên 50 dB: mắt thường không thấy khác biệt)`,
+          );
+          row("SSIM", m.ssim == null ? "Bỏ qua do ảnh lớn" : m.ssim.toFixed(6));
+          panel.append(dl);
+          if (r.alpha_dropped)
+            panel.append(
+              el("div", {
+                class: "note",
+                text: "Phần trong suốt của ảnh gốc đã bị bỏ.",
+              }),
+            );
 
-function drawChart(host, fr, ps, alpha) {
-  const W = 600, H = 250, L = 46, R = 14, T = 14, B = 40;
-  const X = v => L + v * (W - L - R), Y = v => T + (1 - v) * (H - T - B);
-  const NS = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.setAttribute('role', 'img');
-  svg.setAttribute('aria-label', 'Đường cong p-value chi-square theo phần ảnh đã xét');
-  const mk = (n, a, t) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (t) e.textContent = t; svg.append(e); return e; };
-  const css = getComputedStyle(document.documentElement);
-  const grid = css.getPropertyValue('--line').trim(), muted = css.getPropertyValue('--muted').trim(), ink2 = css.getPropertyValue('--ink-2').trim();
-  const series = css.getPropertyValue('--series').trim(), surf = css.getPropertyValue('--panel').trim(), line2 = css.getPropertyValue('--line-2').trim();
-  [0, 0.25, 0.5, 0.75, 1].forEach(v => {
-    mk('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: v === 0 ? line2 : grid, 'stroke-width': 1 });
-    mk('text', { x: L - 8, y: Y(v) + 4, 'text-anchor': 'end', fill: muted, 'font-size': 11 }, String(v));
-  });
-  [0, 0.25, 0.5, 0.75, 1].forEach(v => mk('text', { x: X(v), y: H - B + 17, 'text-anchor': 'middle', fill: muted, 'font-size': 11 }, Math.round(v * 100) + '%'));
-  mk('text', { x: L + (W - L - R) / 2, y: H - 6, 'text-anchor': 'middle', fill: ink2, 'font-size': 12 }, 'Phần ảnh đã xét, tính từ đầu dãy mẫu');
-  mk('line', { x1: L, x2: W - R, y1: Y(alpha), y2: Y(alpha), stroke: muted, 'stroke-width': 1 });
-  mk('text', { x: W - R, y: Y(alpha) - 5, 'text-anchor': 'end', fill: ink2, 'font-size': 11 }, `ngưỡng ${alpha}`);
-  const pts = fr.map((f, i) => ps[i] == null ? null : [X(f), Y(ps[i]), i]).filter(Boolean);
-  if (pts.length) mk('polyline', { points: pts.map(p => p[0] + ',' + p[1]).join(' '), fill: 'none', stroke: series, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' });
-  const last = pts[pts.length - 1];
-  if (last) {
-    mk('circle', { cx: last[0], cy: last[1], r: 5, fill: series, stroke: surf, 'stroke-width': 2 });
-  }
-  const cross = mk('line', { x1: 0, x2: 0, y1: T, y2: H - B, stroke: muted, 'stroke-width': 1, visibility: 'hidden' });
-  const dot = mk('circle', { r: 5, fill: series, stroke: surf, 'stroke-width': 2, visibility: 'hidden' });
+          const act = el("div", { class: "row", style: "margin-top:16px" });
+          const dlb = el("a", {
+            class: "btn",
+            href: url,
+            download: coverName + "_stego.png",
+            text: "Tải ảnh PNG",
+          });
+          dlb.style.textDecoration = "none";
+          dlb.style.display = "inline-block";
+          const mk = (label, fn) => {
+            const b = el("button", {
+              class: "btn ghost small",
+              type: "button",
+              text: label,
+            });
+            b.addEventListener("click", fn);
+            return b;
+          };
+          const toSlot = (id, blob, name) => takeBlob(id, blob, name, true);
+          act.append(
+            dlb,
+            mk("Thử trích xuất", async () => {
+              await toSlot("xstego", stegoBlob, coverName + "_stego.png");
+              show("extract");
+            }),
+            mk("Phân tích ảnh này", async () => {
+              await toSlot("astego", stegoBlob, coverName + "_stego.png");
+              show("analyze");
+            }),
+            mk("So sánh với ảnh gốc", async () => {
+              await toSlot("cstego", stegoBlob, coverName + "_stego.png");
+              const c = slots.cover;
+              await takeBlob(
+                "ccover",
+                b64ToBlob(c.b64, "image/png"),
+                c.name,
+                true,
+              );
+              show("compare");
+            }),
+          );
+          panel.append(act);
+          panel.append(
+            el("p", {
+              class: "hint",
+              style: "margin-top:12px",
+              text: "Hãy lưu ảnh dưới dạng PNG và gửi đúng file này. Mạng xã hội và ứng dụng chat thường nén lại ảnh và làm mất tin.",
+            }),
+          );
+          out.append(panel);
+        }
+        $("#embedForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          showError("embedAlert", "");
+          if (!slots.cover)
+            return showError("embedAlert", "Hãy chọn ảnh gốc trước.");
+          const pw = $("#pw").value;
+          if (!pw) return showError("embedAlert", "Hãy nhập mật khẩu.");
+          const kind = $("input[name=kind]:checked").value;
+          const body = {
+            image: slots.cover.b64,
+            password: pw,
+            method: $("input[name=method]:checked").value,
+            kdf: $("#kdf").value,
+          };
+          if (kind === "file") {
+            if (!secretFiles.length)
+              return showError(
+                "embedAlert",
+                "Hãy chọn ít nhất một file cần giấu.",
+              );
+          } else {
+            body.message = $("#msgText").value;
+            if (!body.message)
+              return showError("embedAlert", "Hãy nhập tin nhắn cần giấu.");
+          }
+          const btn = $("#embedBtn");
+          setBusy(btn, true, "Đang mã hóa và giấu tin…");
+          try {
+            if (kind === "file") {
+              body.files = await Promise.all(
+                secretFiles.map(async (f) => ({
+                  filename: f.name,
+                  data_b64: await fileToB64(f),
+                })),
+              );
+            }
+            const r = await api("/api/embed", body);
+            resetAfterEmbed();
+            renderEmbed(r);
+          } catch (err) {
+            showError("embedAlert", err.message);
+          } finally {
+            setBusy(btn, false);
+          }
+        });
 
-  const box = el('div', { class: 'chart-box' });
-  const tip = el('div', { class: 'tip', hidden: '' });
-  box.append(svg, tip);
-  host.append(box);
-  svg.addEventListener('pointermove', ev => {
-    const r = svg.getBoundingClientRect();
-    const x = (ev.clientX - r.left) / r.width * W;
-    let best = null;
-    pts.forEach(p => { if (!best || Math.abs(p[0] - x) < Math.abs(best[0] - x)) best = p; });
-    if (!best) return;
-    cross.setAttribute('x1', best[0]); cross.setAttribute('x2', best[0]); cross.setAttribute('visibility', 'visible');
-    dot.setAttribute('cx', best[0]); dot.setAttribute('cy', best[1]); dot.setAttribute('visibility', 'visible');
-    tip.hidden = false;
-    tip.textContent = `${(fr[best[2]] * 100).toFixed(0)}% đầu ảnh: p = ${sci(ps[best[2]])}`;
-    tip.style.left = (best[0] / W * 100) + '%'; tip.style.top = (best[1] / H * 100) + '%';
-  });
-  svg.addEventListener('pointerleave', () => { cross.setAttribute('visibility', 'hidden'); dot.setAttribute('visibility', 'hidden'); tip.hidden = true; });
-}
+        /* ============ TRÍCH XUẤT ============ */
+        initSlot("xstego", () => resetOut("extractOut", "extractAlert"));
+        $("#extractForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          showError("extractAlert", "");
+          if (!slots.xstego)
+            return showError("extractAlert", "Hãy chọn ảnh chứa tin.");
+          if (!$("#xpw").value)
+            return showError("extractAlert", "Hãy nhập mật khẩu.");
+          const btn = $("#extractBtn"),
+            out = $("#extractOut");
+          setBusy(btn, true, "Đang giải mã…");
+          try {
+            const r = await api("/api/extract", {
+              image: slots.xstego.b64,
+              password: $("#xpw").value,
+            });
+            const panel = el("div", { class: "panel" });
+            const many = r.kind === "file" && r.files.length > 1;
+            panel.append(
+              el("h2", {
+                text:
+                  r.kind === "text"
+                    ? "Tin nhắn đã giải mã"
+                    : many
+                      ? `${r.files.length} file đã giải mã`
+                      : "File đã giải mã",
+              }),
+            );
+            if (r.kind === "text") {
+              panel.append(el("div", { class: "out", text: r.text }));
+              const c = el("button", {
+                class: "btn ghost small",
+                type: "button",
+                text: "Sao chép",
+                style: "margin-top:12px",
+              });
+              c.addEventListener("click", async () => {
+                try {
+                  await navigator.clipboard.writeText(r.text);
+                  c.textContent = "Đã sao chép";
+                } catch (_) {
+                  c.textContent = "Không sao chép được";
+                }
+                setTimeout(() => {
+                  c.textContent = "Sao chép";
+                }, 1600);
+              });
+              panel.append(c);
+            } else {
+              const ul = el("ul", {
+                class: "files",
+                "aria-label": "Các file đã giải mã",
+              });
+              const entries = r.files.map((f) => ({
+                name: f.filename,
+                data: b64ToBytes(f.data_b64),
+              }));
+              entries.forEach((f) => {
+                const a = el("a", {
+                  class: "btn ghost small",
+                  href: URL.createObjectURL(new Blob([f.data])),
+                  download: f.name,
+                  text: "Tải",
+                  "aria-label": `Tải ${f.name}`,
+                });
+                a.style.textDecoration = "none";
+                ul.append(
+                  el(
+                    "li",
+                    {},
+                    el("span", { class: "fn", text: f.name }),
+                    el("span", { class: "fs", text: fmtBytes(f.data.length) }),
+                    a,
+                  ),
+                );
+              });
+              panel.append(ul);
+              if (many) {
+                const z = el("a", {
+                  class: "btn",
+                  href: URL.createObjectURL(makeZip(entries)),
+                  download: "stegovault_files.zip",
+                  text: "Tải tất cả (.zip)",
+                  style: "margin-top:12px",
+                });
+                z.style.textDecoration = "none";
+                z.style.display = "inline-block";
+                panel.append(z);
+              }
+            }
+            const dl = el("dl", { class: "stats" });
+            dl.append(
+              el("dt", { text: "Xác thực" }),
+              el("dd", {
+                text: "Thẻ AES-GCM khớp: nội dung nguyên vẹn, không bị sửa đổi",
+              }),
+              el("dt", { text: "KDF" }),
+              el("dd", { text: r.kdf }),
+              el("dt", { text: "Cách chọn vị trí" }),
+              el("dd", {
+                text:
+                  r.position_mode === "sequential"
+                    ? "Tuần tự"
+                    : "Rải theo khóa (gồm cả LSB matching)",
+              }),
+            );
+            panel.append(dl);
+            out.replaceChildren(panel);
+          } catch (err) {
+            showError("extractAlert", err.message);
+            out.replaceChildren(
+              el("div", {
+                class: "empty",
+                text: "Chưa lấy được tin. Thông báo lỗi nằm ở cột bên trái.",
+              }),
+            );
+          } finally {
+            setBusy(btn, false);
+          }
+        });
 
-function renderAnalysis(r) {
-  const out = $('#analyzeOut');
-  out.replaceChildren();
-  const lv = LEVELS[r.level] || LEVELS.none;
+        /* ============ PHÂN TÍCH ============ */
+        const LEVELS = {
+          high: {
+            cls: "bad",
+            mark: "!",
+            title: "Nghi cao có tin giấu bằng LSB",
+          },
+          medium: { cls: "warn", mark: "?", title: "Có dấu hiệu đáng ngờ" },
+          none: {
+            cls: "calm",
+            mark: "i",
+            title: "Chưa thấy dấu hiệu LSB ghi đè",
+          },
+        };
+        function sci(p) {
+          return p == null
+            ? "không có"
+            : p < 0.0001 && p > 0
+              ? p.toExponential(1)
+              : p === 0
+                ? "0"
+                : p.toFixed(4);
+        }
 
-  const p1 = el('div', { class: 'panel' });
-  const v = el('div', { class: `verdict ${lv.cls}` });
-  v.append(el('div', { class: 'ic', 'aria-hidden': 'true' }, el('span', { text: lv.mark })),
-           el('div', {}, el('h3', { text: lv.title }), el('p', { text: r.verdict })));
-  p1.append(v);
-  const kp = el('div', { class: 'kpis' });
-  const kpi = (val, key, flag, flagText) => {
-    const k = el('div', { class: 'kpi' }, el('div', { class: 'v', text: val }), el('div', { class: 'k', text: key }));
-    k.append(el('div', { class: 's ' + (flag ? 'bad' : 'ok'), text: flagText }));
-    kp.append(k);
-  };
-  kpi(sci(r.chi_square.p), 'Chi-square toàn ảnh (p-value)', r.chi_square.flag, r.chi_square.flag ? 'Đáng ngờ' : 'Bình thường');
-  kpi(`${r.progressive.longest_run} / ${r.progressive.n_points}`, `Chi-square tiền tố: số điểm liên tiếp có p > ngưỡng (cần từ ${r.progressive.min_run})`, r.progressive.flag, r.progressive.flag ? 'Đáng ngờ' : 'Bình thường');
-  kpi(r.rs.p == null ? 'không có' : r.rs.p.toFixed(3), 'RS: tỉ lệ nhúng ước lượng (bit/mẫu)', r.rs.flag, r.rs.flag ? 'Đáng ngờ' : 'Bình thường');
-  p1.append(kp);
-  out.append(p1);
+        function drawChart(host, fr, ps, alpha) {
+          const W = 600,
+            H = 250,
+            L = 46,
+            R = 14,
+            T = 14,
+            B = 40;
+          const X = (v) => L + v * (W - L - R),
+            Y = (v) => T + (1 - v) * (H - T - B);
+          const NS = "http://www.w3.org/2000/svg";
+          const svg = document.createElementNS(NS, "svg");
+          svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+          svg.setAttribute("role", "img");
+          svg.setAttribute(
+            "aria-label",
+            "Đường cong p-value chi-square theo phần ảnh đã xét",
+          );
+          const mk = (n, a, t) => {
+            const e = document.createElementNS(NS, n);
+            for (const k in a) e.setAttribute(k, a[k]);
+            if (t) e.textContent = t;
+            svg.append(e);
+            return e;
+          };
+          const css = getComputedStyle(document.documentElement);
+          const grid = css.getPropertyValue("--line").trim(),
+            muted = css.getPropertyValue("--muted").trim(),
+            ink2 = css.getPropertyValue("--ink-2").trim();
+          const series = css.getPropertyValue("--series").trim(),
+            surf = css.getPropertyValue("--panel").trim(),
+            line2 = css.getPropertyValue("--line-2").trim();
+          [0, 0.25, 0.5, 0.75, 1].forEach((v) => {
+            mk("line", {
+              x1: L,
+              x2: W - R,
+              y1: Y(v),
+              y2: Y(v),
+              stroke: v === 0 ? line2 : grid,
+              "stroke-width": 1,
+            });
+            mk(
+              "text",
+              {
+                x: L - 8,
+                y: Y(v) + 4,
+                "text-anchor": "end",
+                fill: muted,
+                "font-size": 11,
+              },
+              String(v),
+            );
+          });
+          [0, 0.25, 0.5, 0.75, 1].forEach((v) =>
+            mk(
+              "text",
+              {
+                x: X(v),
+                y: H - B + 17,
+                "text-anchor": "middle",
+                fill: muted,
+                "font-size": 11,
+              },
+              Math.round(v * 100) + "%",
+            ),
+          );
+          mk(
+            "text",
+            {
+              x: L + (W - L - R) / 2,
+              y: H - 6,
+              "text-anchor": "middle",
+              fill: ink2,
+              "font-size": 12,
+            },
+            "Phần ảnh đã xét, tính từ đầu dãy mẫu",
+          );
+          mk("line", {
+            x1: L,
+            x2: W - R,
+            y1: Y(alpha),
+            y2: Y(alpha),
+            stroke: muted,
+            "stroke-width": 1,
+          });
+          mk(
+            "text",
+            {
+              x: W - R,
+              y: Y(alpha) - 5,
+              "text-anchor": "end",
+              fill: ink2,
+              "font-size": 11,
+            },
+            `ngưỡng ${alpha}`,
+          );
+          const pts = fr
+            .map((f, i) => (ps[i] == null ? null : [X(f), Y(ps[i]), i]))
+            .filter(Boolean);
+          if (pts.length)
+            mk("polyline", {
+              points: pts.map((p) => p[0] + "," + p[1]).join(" "),
+              fill: "none",
+              stroke: series,
+              "stroke-width": 2,
+              "stroke-linejoin": "round",
+              "stroke-linecap": "round",
+            });
+          const last = pts[pts.length - 1];
+          if (last) {
+            mk("circle", {
+              cx: last[0],
+              cy: last[1],
+              r: 5,
+              fill: series,
+              stroke: surf,
+              "stroke-width": 2,
+            });
+          }
+          const cross = mk("line", {
+            x1: 0,
+            x2: 0,
+            y1: T,
+            y2: H - B,
+            stroke: muted,
+            "stroke-width": 1,
+            visibility: "hidden",
+          });
+          const dot = mk("circle", {
+            r: 5,
+            fill: series,
+            stroke: surf,
+            "stroke-width": 2,
+            visibility: "hidden",
+          });
 
-  const p2 = el('div', { class: 'panel' });
-  p2.append(el('h2', { text: 'Mặt phẳng bit thấp nhất' }));
-  const host = el('div');
-  p2.append(host);
-  p2.append(el('p', { class: 'hint', style: 'margin-top:8px', text: 'Ảnh sạch thường để lộ cấu trúc của ảnh trong mặt phẳng này; vùng đã bị ghi đè bit ngẫu nhiên trông như nhiễu đều. Ảnh chụp bằng máy ảnh có thể đã nhiễu sẵn nên cách nhìn này chỉ mang tính minh họa.' }));
-  out.append(p2);
-  const base = slots.astego;
-  makeReveal(host, base.url, 'data:image/png;base64,' + r.lsb_png, 'Ảnh', 'Mặt phẳng LSB', r.width, r.height, 'Kéo để lật giữa ảnh và mặt phẳng LSB');
+          const box = el("div", { class: "chart-box" });
+          const tip = el("div", { class: "tip", hidden: "" });
+          box.append(svg, tip);
+          host.append(box);
+          svg.addEventListener("pointermove", (ev) => {
+            const r = svg.getBoundingClientRect();
+            const x = ((ev.clientX - r.left) / r.width) * W;
+            let best = null;
+            pts.forEach((p) => {
+              if (!best || Math.abs(p[0] - x) < Math.abs(best[0] - x)) best = p;
+            });
+            if (!best) return;
+            cross.setAttribute("x1", best[0]);
+            cross.setAttribute("x2", best[0]);
+            cross.setAttribute("visibility", "visible");
+            dot.setAttribute("cx", best[0]);
+            dot.setAttribute("cy", best[1]);
+            dot.setAttribute("visibility", "visible");
+            tip.hidden = false;
+            tip.textContent = `${(fr[best[2]] * 100).toFixed(0)}% đầu ảnh: p = ${sci(ps[best[2]])}`;
+            tip.style.left = (best[0] / W) * 100 + "%";
+            tip.style.top = (best[1] / H) * 100 + "%";
+          });
+          svg.addEventListener("pointerleave", () => {
+            cross.setAttribute("visibility", "hidden");
+            dot.setAttribute("visibility", "hidden");
+            tip.hidden = true;
+          });
+        }
 
-  const p3 = el('div', { class: 'panel' });
-  p3.append(el('h2', { text: 'Chi-square theo phần ảnh đã xét' }));
-  p3.append(el('p', { class: 'hint', style: 'margin-bottom:8px', text: 'Nhúng tuần tự để lại dấu: p-value cao ở đoạn đầu ảnh rồi tụt xuống ở chỗ tin kết thúc.' }));
-  const ch = el('div'); p3.append(ch);
-  drawChart(ch, r.progressive.fractions, r.progressive.p, r.thresholds.chi_alpha);
-  const det = el('details', { style: 'margin-top:12px' }, el('summary', { text: 'Xem dạng bảng' }));
-  const tb = el('table', { class: 'tbl' });
-  tb.append(el('thead', {}, el('tr', {}, el('th', { text: 'Phần ảnh đã xét' }), el('th', { text: 'p-value' }))));
-  const tbody = el('tbody');
-  r.progressive.fractions.forEach((f, i) => tbody.append(el('tr', {}, el('td', { text: (f * 100).toFixed(0) + '%' }), el('td', { text: sci(r.progressive.p[i]) }))));
-  tb.append(tbody); det.append(tb); p3.append(det);
-  out.append(p3);
-}
-let analyzeSeq = 0;
-initSlot('astego', async s => {
-  showError('analyzeAlert', '');
-  const my = ++analyzeSeq, out = $('#analyzeOut');
-  out.replaceChildren(el('div', { class: 'empty' }, el('span', { class: 'spin' }), 'Đang phân tích…'));
-  try {
-    const r = await api('/api/analyze', { image: s.b64 });
-    if (my === analyzeSeq) renderAnalysis(r);
-  } catch (err) {
-    if (my !== analyzeSeq) return;
-    showError('analyzeAlert', err.message);
-    out.replaceChildren(el('div', { class: 'empty', text: 'Không phân tích được ảnh này.' }));
-  }
-});
+        function renderAnalysis(r) {
+          const out = $("#analyzeOut");
+          out.replaceChildren();
+          const lv = LEVELS[r.level] || LEVELS.none;
 
-/* ============ SO SÁNH ============ */
-initSlot('ccover', () => showError('compareAlert', ''));
-initSlot('cstego', () => showError('compareAlert', ''));
-$('#compareForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  showError('compareAlert', '');
-  if (!slots.ccover || !slots.cstego) return showError('compareAlert', 'Hãy chọn đủ hai ảnh.');
-  const btn = $('#compareBtn'), out = $('#compareOut');
-  setBusy(btn, true, 'Đang so sánh…');
-  try {
-    const r = await api('/api/compare', { cover: slots.ccover.b64, stego: slots.cstego.b64 });
-    const m = r.metrics;
-    const p1 = el('div', { class: 'panel' });
-    p1.append(el('h2', { text: m.identical ? 'Hai ảnh giống hệt nhau' : 'Kết quả so sánh' }));
-    const dl = el('dl', { class: 'stats' });
-    const row = (k, val) => dl.append(el('dt', { text: k }), el('dd', { text: val }));
-    row('Mẫu màu bị đổi', `${fmtInt(m.changed_samples)} (${(m.changed_ratio * 100).toFixed(3)}% số mẫu)`);
-    row('Lệch tối đa', `${m.max_abs_diff} trên thang 255`);
-    row('PSNR', m.psnr_db == null ? 'Vô hạn (giống hệt)' : `${m.psnr_db.toFixed(2)} dB`);
-    row('SSIM', m.ssim == null ? 'Bỏ qua do ảnh lớn' : m.ssim.toFixed(6));
-    p1.append(dl);
-    const p2 = el('div', { class: 'panel' });
-    p2.append(el('h2', { text: 'Những điểm ảnh bị thay đổi' }));
-    const host = el('div'); p2.append(host);
-    p2.append(el('p', { class: 'hint', style: 'margin-top:8px', text: 'Bên phải thanh trượt, điểm trắng là nơi ít nhất một kênh màu đã đổi giá trị. Với nhúng rải theo khóa, các điểm này nằm rải đều khắp ảnh.' }));
-    out.replaceChildren(p1, p2);
-    makeReveal(host, slots.cstego.url, 'data:image/png;base64,' + r.diff_png, 'Ảnh đã giấu tin', 'Điểm bị đổi', r.width, r.height, 'Kéo để lật giữa ảnh và bản đồ điểm bị đổi');
-  } catch (err) {
-    showError('compareAlert', err.message);
-  } finally { setBusy(btn, false); }
-});
+          const p1 = el("div", { class: "panel" });
+          const v = el("div", { class: `verdict ${lv.cls}` });
+          v.append(
+            el(
+              "div",
+              { class: "ic", "aria-hidden": "true" },
+              el("span", { text: lv.mark }),
+            ),
+            el(
+              "div",
+              {},
+              el("h3", { text: lv.title }),
+              el("p", { text: r.verdict }),
+            ),
+          );
+          p1.append(v);
+          const kp = el("div", { class: "kpis" });
+          const kpi = (val, key, flag, flagText) => {
+            const k = el(
+              "div",
+              { class: "kpi" },
+              el("div", { class: "v", text: val }),
+              el("div", { class: "k", text: key }),
+            );
+            k.append(
+              el("div", {
+                class: "s " + (flag ? "bad" : "ok"),
+                text: flagText,
+              }),
+            );
+            kp.append(k);
+          };
+          kpi(
+            sci(r.chi_square.p),
+            "Chi-square toàn ảnh (p-value)",
+            r.chi_square.flag,
+            r.chi_square.flag ? "Đáng ngờ" : "Bình thường",
+          );
+          kpi(
+            `${r.progressive.longest_run} / ${r.progressive.n_points}`,
+            `Chi-square tiền tố: số điểm liên tiếp có p > ngưỡng (cần từ ${r.progressive.min_run})`,
+            r.progressive.flag,
+            r.progressive.flag ? "Đáng ngờ" : "Bình thường",
+          );
+          kpi(
+            r.rs.p == null ? "không có" : r.rs.p.toFixed(3),
+            "RS: tỉ lệ nhúng ước lượng (bit/mẫu)",
+            r.rs.flag,
+            r.rs.flag ? "Đáng ngờ" : "Bình thường",
+          );
+          p1.append(kp);
+          out.append(p1);
 
-/* ---------- khởi động ---------- */
-(async () => {
-  try {
-    const info = await (await fetch('/api/info')).json();
-    const sel = $('#kdf');
-    info.kdfs.forEach(k => sel.append(el('option', { value: k, text: k === 'scrypt' ? 'scrypt (mặc định)' : 'Argon2id' })));
-  } catch (_) { $('#kdf').append(el('option', { value: 'scrypt', text: 'scrypt' })); }
-  loadSamples();
-  updateMeter();
-})();
-})();
-</script>
-</body>
+          const p2 = el("div", { class: "panel" });
+          p2.append(el("h2", { text: "Mặt phẳng bit thấp nhất" }));
+          const host = el("div");
+          p2.append(host);
+          p2.append(
+            el("p", {
+              class: "hint",
+              style: "margin-top:8px",
+              text: "Ảnh sạch thường để lộ cấu trúc của ảnh trong mặt phẳng này; vùng đã bị ghi đè bit ngẫu nhiên trông như nhiễu đều. Ảnh chụp bằng máy ảnh có thể đã nhiễu sẵn nên cách nhìn này chỉ mang tính minh họa.",
+            }),
+          );
+          out.append(p2);
+          const base = slots.astego;
+          makeReveal(
+            host,
+            base.url,
+            "data:image/png;base64," + r.lsb_png,
+            "Ảnh",
+            "Mặt phẳng LSB",
+            r.width,
+            r.height,
+            "Kéo để lật giữa ảnh và mặt phẳng LSB",
+          );
+
+          const p3 = el("div", { class: "panel" });
+          p3.append(el("h2", { text: "Chi-square theo phần ảnh đã xét" }));
+          p3.append(
+            el("p", {
+              class: "hint",
+              style: "margin-bottom:8px",
+              text: "Nhúng tuần tự để lại dấu: p-value cao ở đoạn đầu ảnh rồi tụt xuống ở chỗ tin kết thúc.",
+            }),
+          );
+          const ch = el("div");
+          p3.append(ch);
+          drawChart(
+            ch,
+            r.progressive.fractions,
+            r.progressive.p,
+            r.thresholds.chi_alpha,
+          );
+          const det = el(
+            "details",
+            { style: "margin-top:12px" },
+            el("summary", { text: "Xem dạng bảng" }),
+          );
+          const tb = el("table", { class: "tbl" });
+          tb.append(
+            el(
+              "thead",
+              {},
+              el(
+                "tr",
+                {},
+                el("th", { text: "Phần ảnh đã xét" }),
+                el("th", { text: "p-value" }),
+              ),
+            ),
+          );
+          const tbody = el("tbody");
+          r.progressive.fractions.forEach((f, i) =>
+            tbody.append(
+              el(
+                "tr",
+                {},
+                el("td", { text: (f * 100).toFixed(0) + "%" }),
+                el("td", { text: sci(r.progressive.p[i]) }),
+              ),
+            ),
+          );
+          tb.append(tbody);
+          det.append(tb);
+          p3.append(det);
+          out.append(p3);
+        }
+        initSlot("astego", async (s) => {
+          showError("analyzeAlert", "");
+          const my = ++analyzeSeq,
+            out = $("#analyzeOut");
+          out.replaceChildren(
+            el(
+              "div",
+              { class: "empty" },
+              el("span", { class: "spin" }),
+              "Đang phân tích…",
+            ),
+          );
+          try {
+            const r = await api("/api/analyze", { image: s.b64 });
+            if (my === analyzeSeq) renderAnalysis(r);
+          } catch (err) {
+            if (my !== analyzeSeq) return;
+            showError("analyzeAlert", err.message);
+            out.replaceChildren(
+              el("div", {
+                class: "empty",
+                text: "Không phân tích được ảnh này.",
+              }),
+            );
+          }
+        });
+
+        /* ============ SO SÁNH ============ */
+        initSlot("ccover", () => resetOut("compareOut", "compareAlert"));
+        initSlot("cstego", () => resetOut("compareOut", "compareAlert"));
+        $("#compareForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          showError("compareAlert", "");
+          if (!slots.ccover || !slots.cstego)
+            return showError("compareAlert", "Hãy chọn đủ hai ảnh.");
+          const btn = $("#compareBtn"),
+            out = $("#compareOut");
+          setBusy(btn, true, "Đang so sánh…");
+          try {
+            const r = await api("/api/compare", {
+              cover: slots.ccover.b64,
+              stego: slots.cstego.b64,
+            });
+            const m = r.metrics;
+            const p1 = el("div", { class: "panel" });
+            p1.append(
+              el("h2", {
+                text: m.identical
+                  ? "Hai ảnh giống hệt nhau"
+                  : "Kết quả so sánh",
+              }),
+            );
+            const dl = el("dl", { class: "stats" });
+            const row = (k, val) =>
+              dl.append(el("dt", { text: k }), el("dd", { text: val }));
+            row(
+              "Mẫu màu bị đổi",
+              `${fmtInt(m.changed_samples)} (${(m.changed_ratio * 100).toFixed(3)}% số mẫu)`,
+            );
+            row("Lệch tối đa", `${m.max_abs_diff} trên thang 255`);
+            row(
+              "PSNR",
+              m.psnr_db == null
+                ? "Vô hạn (giống hệt)"
+                : `${m.psnr_db.toFixed(2)} dB`,
+            );
+            row(
+              "SSIM",
+              m.ssim == null ? "Bỏ qua do ảnh lớn" : m.ssim.toFixed(6),
+            );
+            p1.append(dl);
+            const p2 = el("div", { class: "panel" });
+            p2.append(el("h2", { text: "Những điểm ảnh bị thay đổi" }));
+            const host = el("div");
+            p2.append(host);
+            p2.append(
+              el("p", {
+                class: "hint",
+                style: "margin-top:8px",
+                text: "Bên phải thanh trượt, điểm trắng là nơi ít nhất một kênh màu đã đổi giá trị. Với nhúng rải theo khóa, các điểm này nằm rải đều khắp ảnh.",
+              }),
+            );
+            out.replaceChildren(p1, p2);
+            makeReveal(
+              host,
+              slots.cstego.url,
+              "data:image/png;base64," + r.diff_png,
+              "Ảnh đã giấu tin",
+              "Điểm bị đổi",
+              r.width,
+              r.height,
+              "Kéo để lật giữa ảnh và bản đồ điểm bị đổi",
+            );
+          } catch (err) {
+            showError("compareAlert", err.message);
+          } finally {
+            setBusy(btn, false);
+          }
+        });
+
+        /* ---------- khởi động ---------- */
+        (async () => {
+          try {
+            const info = await (await fetch("/api/info")).json();
+            const sel = $("#kdf");
+            info.kdfs.forEach((k) =>
+              sel.append(
+                el("option", {
+                  value: k,
+                  text: k === "scrypt" ? "scrypt (mặc định)" : "Argon2id",
+                }),
+              ),
+            );
+          } catch (_) {
+            $("#kdf").append(el("option", { value: "scrypt", text: "scrypt" }));
+          }
+          updateMeter();
+        })();
+      })();
+    </script>
+  </body>
 </html>

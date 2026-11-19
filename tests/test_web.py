@@ -43,11 +43,44 @@ def test_capacity_and_embed_extract_roundtrip(b64cover):
     assert out["kind"] == "text" and out["text"] == "Tin nhắn web 🚀"
 
 
+def _f(name, data):
+    return {"filename": name, "data_b64": base64.b64encode(data).decode()}
+
+
 def test_file_roundtrip_via_api(b64cover):
     data = np.random.default_rng(1).bytes(800)
-    r = api.api_embed({"image": b64cover, "password": PW, "file_b64": base64.b64encode(data).decode(), "filename": "../x.bin"})
+    r = api.api_embed({"image": b64cover, "password": PW, "files": [_f("../x.bin", data)]})
+    assert r["stats"]["file_count"] == 1
     out = api.api_extract({"image": r["stego_png"], "password": PW})
-    assert out["kind"] == "file" and out["filename"] == "x.bin" and base64.b64decode(out["data_b64"]) == data
+    assert out["kind"] == "file" and out["size"] == 800
+    assert [f["filename"] for f in out["files"]] == ["x.bin"]
+    assert base64.b64decode(out["files"][0]["data_b64"]) == data
+
+
+def test_many_files_roundtrip_via_api(b64cover):
+    rng = np.random.default_rng(2)
+    blobs = [("a.txt", rng.bytes(300)), ("b.bin", rng.bytes(200)), ("a.txt", b"trung ten"), ("rong.txt", b"")]
+    r = api.api_embed({"image": b64cover, "password": PW, "method": "sequential", "files": [_f(n, d) for n, d in blobs]})
+    assert r["stats"]["file_count"] == 4 and r["stats"]["message_bytes"] == 300 + 200 + 9
+    out = api.api_extract({"image": r["stego_png"], "password": PW})
+    assert out["kind"] == "file" and out["size"] == 509
+    assert [f["filename"] for f in out["files"]] == ["a.txt", "b.bin", "a (2).txt", "rong.txt"]
+    assert [base64.b64decode(f["data_b64"]) for f in out["files"]] == [d for _, d in blobs]
+    assert [f["size"] for f in out["files"]] == [300, 200, 9, 0]
+
+
+@pytest.mark.parametrize("files", [[], "abc", [1], [{"filename": "a"}, 5]])
+def test_api_rejects_malformed_file_lists(b64cover, files):
+    with pytest.raises(StegoError):
+        api.api_embed({"image": b64cover, "password": PW, "files": files})
+
+
+def test_api_rejects_too_many_files_and_too_much_data(b64cover, monkeypatch):
+    with pytest.raises(StegoError, match="tối đa"):
+        api.api_embed({"image": b64cover, "password": PW, "files": [_f(f"{i}.txt", b"x") for i in range(257)]})
+    monkeypatch.setattr(api, "MAX_FILE_BYTES", 10)
+    with pytest.raises(StegoError, match="quá lớn"):
+        api.api_embed({"image": b64cover, "password": PW, "files": [_f("a", b"x" * 6), _f("b", b"y" * 6)]})
 
 
 def test_api_errors_are_stego_errors(b64cover):
@@ -191,17 +224,8 @@ def test_server_rejects_oversized_and_empty_bodies(server):
     assert http_req(server, "POST", "/api/embed", "", {"Content-Type": "application/json"})[0] == 413
 
 
-@pytest.mark.parametrize("path", ["/samples/..%2fstegovault%2fcli.py", "/samples/../pytest.ini", "/samples/%2e%2e/pytest.ini",
-                                  "/samples/nope.png", "/samples/a.png/../../x", "/samples/astronaut.png%00.txt"])
-def test_server_sample_route_blocks_traversal(server, path):
+@pytest.mark.parametrize("path", ["/api/samples", "/samples/camera.png", "/samples/..%2fstegovault%2fcli.py",
+                                  "/samples/../pytest.ini", "/samples/%2e%2e/pytest.ini", "/samples/a.png/../../x"])
+def test_server_no_longer_serves_sample_files(server, path):
+    """Giao diện không còn mục ảnh mẫu, nên máy chủ cũng không phục vụ file nào từ đĩa ngoài trang chính."""
     assert http_req(server, "GET", path)[0] == 404
-
-
-def test_server_serves_real_sample_png(server):
-    from pathlib import Path
-    if not (Path(__file__).resolve().parent.parent / "samples" / "camera.png").exists():
-        pytest.skip("thiếu ảnh mẫu")
-    s, h, body = http_req(server, "GET", "/samples/camera.png")
-    assert s == 200 and h["Content-Type"] == "image/png" and body[:4] == b"\x89PNG"
-    s, _, body = http_req(server, "GET", "/api/samples")
-    assert s == 200 and "camera.png" in json.loads(body)["samples"]

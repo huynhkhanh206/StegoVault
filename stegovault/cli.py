@@ -48,16 +48,17 @@ def cmd_capacity(args: argparse.Namespace) -> int:
 
 
 def cmd_embed(args: argparse.Namespace) -> int:
-    sources = [args.message is not None, args.file is not None, args.message_file is not None]
+    sources = [args.message is not None, bool(args.file), args.message_file is not None]
     if sum(sources) != 1:
         raise StegoError("Hãy chọn đúng một nguồn tin: -m/--message, --message-file hoặc -f/--file.")
     if args.message is not None:
-        message, filename = args.message, None
+        message = args.message
     elif args.message_file is not None:
-        message, filename = Path(args.message_file).read_text(encoding="utf-8"), None
+        message = Path(args.message_file).read_text(encoding="utf-8")
     else:
-        p = Path(args.file)
-        message, filename = p.read_bytes(), p.name
+        if len(args.file) > cl.MAX_FILES:
+            raise StegoError(f"Chỉ giấu được tối đa {cl.MAX_FILES} file một lần.")
+        message = [(Path(f).name, Path(f).read_bytes()) for f in args.file]
 
     out = args.output or str(Path(args.cover).with_name(Path(args.cover).stem + "_stego.png"))
     if os.path.abspath(out) == os.path.abspath(args.cover):
@@ -70,13 +71,13 @@ def cmd_embed(args: argparse.Namespace) -> int:
     password = _read_password(args, confirm=True)
     cover = load_rgb(args.cover)
     res = embed(
-        cover, message, password, method=args.method, kdf=args.kdf,
-        filename=filename, compress=not args.no_compress,
+        cover, message, password, method=args.method, kdf=args.kdf, compress=not args.no_compress,
     )
     save_lossless(res.stego, out)
     d = diff_stats(cover, res.stego)
 
-    print(f"✓ Đã giấu {res.message_bytes:,} byte vào {out}")
+    what = f"{len(message)} file, " if isinstance(message, list) and len(message) > 1 else ""
+    print(f"✓ Đã giấu {what}{res.message_bytes:,} byte vào {out}")
     print(f"  Phương pháp : {args.method} - {METHOD_LABELS[args.method]}")
     print(f"  KDF         : {args.kdf}   |   mã hóa: AES-256-GCM")
     print(f"  Dung lượng  : đã dùng {res.utilization:.1%} ({res.container_bytes:,}/{res.capacity_bytes:,} byte)")
@@ -100,13 +101,32 @@ def cmd_extract(args: argparse.Namespace) -> int:
         return 0
 
     # File: tên lấy từ ảnh đã được làm sạch; không bao giờ ghi ra ngoài thư mục đích.
+    files = res.files
+    if res.is_bundle:
+        folder = Path(args.output) if args.output else Path.cwd() / "stegovault_out"
+        if folder.exists() and not folder.is_dir():
+            raise StegoError(f"{folder} là một file; với nhiều file, -o phải là thư mục.")
+        targets = [folder / name for name, _ in files]
+        clash = [t for t in targets if t.exists()]
+        if clash and not args.force:
+            raise StegoError(f"{clash[0]} đã tồn tại. Dùng --force để ghi đè.")
+        folder.mkdir(parents=True, exist_ok=True)
+        for t, (_, data) in zip(targets, files):
+            t.write_bytes(data)
+        total = sum(len(d) for _, d in files)
+        print(f"✓ Đã trích {len(files)} file ({total:,} byte) -> {folder}")
+        for name, data in files:
+            print(f"  {name} ({len(data):,} byte)")
+        return 0
+
+    name, data = files[0]
     target = Path(args.output) if args.output else Path.cwd()
     if target.is_dir() or not args.output:
-        target = target / (res.filename or "extracted.bin")
+        target = target / name
     if target.exists() and not args.force:
         raise StegoError(f"{target} đã tồn tại. Dùng --force để ghi đè.")
-    target.write_bytes(res.data)
-    print(f"✓ Đã trích file '{res.filename}' ({len(res.data):,} byte) -> {target}")
+    target.write_bytes(data)
+    print(f"✓ Đã trích file '{name}' ({len(data):,} byte) -> {target}")
     return 0
 
 
@@ -201,7 +221,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("-o", "--output", help="ảnh đầu ra (.png/.bmp/.tiff); mặc định <tên>_stego.png")
     sp.add_argument("-m", "--message", help="tin nhắn văn bản cần giấu")
     sp.add_argument("--message-file", help="đọc tin nhắn văn bản từ file UTF-8")
-    sp.add_argument("-f", "--file", help="giấu một file bất kỳ (nhị phân)")
+    sp.add_argument("-f", "--file", nargs="+", action="extend", metavar="FILE",
+                    help="giấu một hoặc nhiều file bất kỳ (nhị phân), ví dụ: -f a.pdf b.txt")
     sp.add_argument("--method", choices=list(METHODS), default="matching",
                     help="sequential | keyed | matching (mặc định: matching, khó bị dò nhất)")
     sp.add_argument("--kdf", choices=list(cl.KDFS), default="scrypt")
@@ -212,7 +233,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("extract", help="trích xuất và giải mã tin từ ảnh")
     sp.add_argument("-i", "--image", required=True, help="ảnh chứa tin")
-    sp.add_argument("-o", "--output", help="nơi lưu kết quả (file hoặc thư mục); mặc định in ra màn hình / thư mục hiện tại")
+    sp.add_argument("-o", "--output", help="nơi lưu kết quả (file hoặc thư mục); mặc định in ra màn hình / thư mục hiện tại. "
+                                                            "Với nhiều file đây là thư mục (mặc định ./stegovault_out)")
     sp.add_argument("--mode", choices=["auto", "keyed", "sequential"], default="auto", help="cách chọn vị trí (mặc định: tự dò)")
     sp.add_argument("--kdf", choices=["auto", *cl.KDFS], default="auto")
     sp.add_argument("--force", action="store_true", help="ghi đè file đầu ra nếu đã tồn tại")

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -29,11 +29,24 @@ class ExtractResult:
         return self.payload.text()
 
     @property
+    def is_bundle(self) -> bool:
+        return self.payload.is_bundle
+
+    @property
+    def files(self) -> List[Tuple[str, bytes]]:
+        """Mọi file lấy ra được, dạng (tên đã làm sạch, nội dung). Rỗng nếu gói là tin nhắn."""
+        return self.payload.file_list()
+
+    @property
     def data(self) -> bytes:
+        if self.payload.is_bundle:
+            raise StegoError("Gói này chứa nhiều file; hãy dùng .files.")
         return self.payload.data
 
     @property
     def filename(self) -> Optional[str]:
+        if self.payload.is_bundle:
+            raise StegoError("Gói này chứa nhiều file; hãy dùng .files.")
         return self.payload.filename
 
 

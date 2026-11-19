@@ -26,8 +26,8 @@ Trung bình trên 6 ảnh mẫu 8-bit (PSNR / SSIM). Cột lý thuyết: PSNR = 
 
 | KDF | Bộ nhớ | Thời gian một lần suy dẫn (trung vị 3 lần) |
 |---|---|---|
-| scrypt | 32 MiB | 51 ms |
-| argon2id | 64 MiB | 89 ms |
+| scrypt | 32 MiB | 71 ms |
+| argon2id | 64 MiB | 71 ms |
 
 ### Độ chính xác của ước lượng RS
 

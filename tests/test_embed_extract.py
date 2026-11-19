@@ -219,3 +219,56 @@ def test_embedding_rate_property_matches_message(cover):
     res = embed(cover, "ngắn", PW)
     assert res.embedded_bits == cl.BOOTSTRAP_BITS + 8 * (cl.OVERHEAD + res.container_bytes)
     assert res.embedding_rate == pytest.approx(res.embedded_bits / cover.size)
+
+
+# ------------------------------------------------------------- nhiều file
+@pytest.mark.parametrize("method", list(METHODS))
+def test_many_files_roundtrip(big_cover, method):
+    rng = np.random.default_rng(11)
+    files = [("một.bin", rng.bytes(1500)), ("hai.txt", "nội dung tiếng Việt".encode()), ("một.bin", rng.bytes(700))]
+    res = embed(big_cover, files, PW, method=method)
+    assert res.message_bytes == 1500 + len("nội dung tiếng Việt".encode()) + 700
+    out = extract(res.stego, PW)
+    assert out.is_bundle and not out.is_text
+    assert [n for n, _ in out.files] == ["một.bin", "hai.txt", "một (2).bin"]
+    assert [d for _, d in out.files] == [d for _, d in files]
+
+
+def test_one_file_in_a_list_extracts_like_a_single_file(big_cover):
+    res = embed(big_cover, [("chi-mot.bin", b"abc" * 100)], PW)
+    out = extract(res.stego, PW)
+    assert not out.is_bundle and out.filename == "chi-mot.bin" and out.data == b"abc" * 100
+    assert out.files == [("chi-mot.bin", b"abc" * 100)]
+
+
+def test_single_file_and_text_expose_files_consistently(big_cover):
+    assert extract(embed(big_cover, "xin chào", PW).stego, PW).files == []
+    assert extract(embed(big_cover, b"zz", PW, filename="z.bin").stego, PW).files == [("z.bin", b"zz")]
+
+
+def test_bundle_result_refuses_single_file_accessors(big_cover):
+    out = extract(embed(big_cover, [("a", b"1"), ("b", b"2")], PW).stego, PW)
+    with pytest.raises(StegoError, match="nhiều file"):
+        out.data
+    with pytest.raises(StegoError, match="nhiều file"):
+        out.filename
+
+
+def test_many_files_capacity_is_checked_on_the_whole_bundle(cover):
+    cap = capacity_bytes(cover)
+    files = [("a", np.random.default_rng(1).bytes(cap // 2 + 100)), ("b", np.random.default_rng(2).bytes(cap // 2 + 100))]
+    with pytest.raises(CapacityError):
+        embed(cover, files, PW)
+
+
+def test_embed_rejects_empty_file_list_and_wrong_types(cover):
+    with pytest.raises(StegoError):
+        embed(cover, [], PW)
+    with pytest.raises(TypeError):
+        embed(cover, 123, PW)
+
+
+def test_bundle_wrong_password_and_tamper_still_rejected(big_cover):
+    res = embed(big_cover, [("a", b"1" * 50), ("b", b"2" * 50)], PW)
+    with pytest.raises(DecryptionError):
+        extract(res.stego, "sai-mat-khau")

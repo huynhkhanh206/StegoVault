@@ -6,8 +6,8 @@ Tin 1,420 byte giấu vào ảnh astronaut 512×512. OK = giải mã đúng; H�
 |---|---|---|---|---|
 | Lưu lại PNG / BMP / TIFF (không mất dữ liệu) | OK | OK | OK | 0 |
 | JPEG chất lượng 100 | HỎNG | HỎNG | HỎNG | 34.01% |
-| JPEG chất lượng 95 | HỎNG | HỎNG | HỎNG | 45.12% |
-| JPEG chất lượng 75 | HỎNG | HỎNG | HỎNG | 45.33% |
+| JPEG chất lượng 95 | HỎNG | HỎNG | HỎNG | 45.13% |
+| JPEG chất lượng 75 | HỎNG | HỎNG | HỎNG | 45.32% |
 | Thu nhỏ 99% rồi phóng lại | HỎNG | HỎNG | HỎNG | 36.44% |
 | Thêm nhiễu Gauss σ = 1 | HỎNG | HỎNG | HỎNG | 46.97% |
 | Lật ngang ảnh | HỎNG | HỎNG | HỎNG | 49.92% |

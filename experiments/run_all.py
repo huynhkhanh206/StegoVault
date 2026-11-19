@@ -20,6 +20,7 @@ sys.path.insert(0, str(HERE.parent / "demo"))
 import crypto_demos  # noqa: E402
 import exp_detection  # noqa: E402
 import exp_quality  # noqa: E402
+import exp_real_vs_sim  # noqa: E402
 import exp_robustness  # noqa: E402
 import exp_visual  # noqa: E402
 from common import RESULTS, ensure_results  # noqa: E402
@@ -33,16 +34,18 @@ def main() -> None:
     out = ensure_results()
     t0 = time.time()
 
-    print("[1/5] Tỉ lệ phát hiện theo tỉ lệ nhúng")
+    print("[1/6] Tỉ lệ phát hiện theo tỉ lệ nhúng")
     det_text = exp_detection.write_outputs(exp_detection.run(per_image))
-    print("[2/5] Chất lượng, dung lượng, KDF")
+    print("[2/6] Chất lượng, dung lượng, KDF")
     qual_text = exp_quality.main()
-    print("[3/5] Độ bền")
+    print("[3/6] Độ bền")
     rob_text = exp_robustness.main()
-    print("[4/5] Hình trực quan")
+    print("[4/6] Hình trực quan")
     exp_visual.main()
-    print("[5/5] Demo mật mã nền tảng")
+    print("[5/6] Demo mật mã nền tảng")
     crypto_demos.main()
+    print("[6/6] Nhúng thật so với nhúng mô phỏng")
+    real_text = exp_real_vs_sim.main(per_image=2 if args.quick else 4)
 
     crypto_text = (RESULTS / "crypto_demos.md").read_text(encoding="utf-8")
     mode = "CHẾ ĐỘ NHANH (--quick): số liệu thô, không dùng để báo cáo" if args.quick else "đầy đủ"
@@ -74,7 +77,10 @@ Sinh tự động bởi `experiments/run_all.py` ({mode}). Hạt giống ngẫu 
 
 ![ECB và GCM](ecb_vs_gcm.png)
 
-{crypto_text}"""
+{crypto_text}
+## 6. Kiểm tra giả định của các thí nghiệm: nhúng thật so với mô phỏng
+
+{real_text}"""
     (out / "RESULTS.md").write_text(md, encoding="utf-8")
     print(f"\nXong sau {time.time() - t0:.0f}s -> {out / 'RESULTS.md'}")
 

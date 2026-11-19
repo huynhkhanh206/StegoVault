@@ -9,7 +9,6 @@ Bảo mật:
 from __future__ import annotations
 
 import json
-import re
 import sys
 import threading
 import traceback
@@ -23,7 +22,6 @@ from .api import ROUTES, clean
 
 MAX_BODY = 160 * 1024 * 1024
 INDEX_PATH = Path(__file__).with_name("index.html")
-SAMPLES_DIR = Path(__file__).resolve().parents[2] / "samples"
 LOCAL_HOSTS = {"127.0.0.1", "localhost", "[::1]"}
 
 SECURITY_HEADERS = {
@@ -79,14 +77,6 @@ class Handler(BaseHTTPRequestHandler):
         path = self.path.split("?", 1)[0]
         if path == "/api/info":
             return self._json(200, ROUTES["/api/info"]({}))
-        if path == "/api/samples":
-            names = sorted(p.name for p in SAMPLES_DIR.glob("*.png")) if SAMPLES_DIR.is_dir() else []
-            return self._json(200, {"samples": names})
-        if path.startswith("/samples/"):
-            name = path[len("/samples/"):]
-            # Chỉ phục vụ file .png nằm thẳng trong thư mục samples (không cho đi lên thư mục cha).
-            if re.fullmatch(r"[A-Za-z0-9_-]+\.png", name) and (SAMPLES_DIR / name).is_file():
-                return self._send(200, (SAMPLES_DIR / name).read_bytes(), "image/png")
         self._json(404, {"error": "Không tìm thấy."})
 
     def do_POST(self):

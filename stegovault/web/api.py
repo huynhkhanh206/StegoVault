@@ -108,16 +108,26 @@ def api_embed(req: Dict[str, Any]) -> Dict[str, Any]:
     password = req.get("password") or ""
     method = req.get("method") or "matching"
     kdf = req.get("kdf") or "scrypt"
-    if req.get("file_b64"):
-        data = _b64decode(req["file_b64"])
-        if len(data) > MAX_FILE_BYTES:
-            raise StegoError("File cần giấu quá lớn.")
-        message, filename = data, str(req.get("filename") or "data.bin")
+    files = req.get("files")
+    if files is not None:
+        if not isinstance(files, list) or not files:
+            raise StegoError("Hãy chọn ít nhất một file cần giấu.")
+        if len(files) > cl.MAX_FILES:
+            raise StegoError(f"Chỉ giấu được tối đa {cl.MAX_FILES} file một lần.")
+        message, total = [], 0
+        for f in files:
+            if not isinstance(f, dict):
+                raise StegoError("Danh sách file không hợp lệ.")
+            data = _b64decode(f.get("data_b64")) if f.get("data_b64") else b""
+            total += len(data)
+            if total > MAX_FILE_BYTES:
+                raise StegoError(f"Tổng dung lượng các file quá lớn (tối đa {MAX_FILE_BYTES // (1024 * 1024)} MB).")
+            message.append((str(f.get("filename") or "data.bin"), data))
     else:
-        message, filename = str(req.get("message") or ""), None
+        message = str(req.get("message") or "")
         if not message:
             raise StegoError("Hãy nhập tin nhắn hoặc chọn file cần giấu.")
-    res = embed(arr, message, password, method=method, kdf=kdf, filename=filename)
+    res = embed(arr, message, password, method=method, kdf=kdf)
     return {
         "stego_png": encode_png(res.stego),
         "width": arr.shape[1],
@@ -128,6 +138,7 @@ def api_embed(req: Dict[str, Any]) -> Dict[str, Any]:
             "method_label": METHOD_LABELS[method],
             "kdf": kdf,
             "message_bytes": res.message_bytes,
+            "file_count": len(message) if isinstance(message, list) else 0,
             "container_bytes": res.container_bytes,
             "capacity_bytes": res.capacity_bytes,
             "utilization": res.utilization,
@@ -142,11 +153,22 @@ def api_embed(req: Dict[str, Any]) -> Dict[str, Any]:
 def api_extract(req: Dict[str, Any]) -> Dict[str, Any]:
     arr, _ = decode_image(req.get("image"))
     res = extract(arr, req.get("password") or "", position_mode=req.get("mode") or "auto", kdf=req.get("kdf") or "auto")
-    out: Dict[str, Any] = {"kdf": res.kdf, "position_mode": res.position_mode, "size": len(res.data)}
+    files = res.files
+    out: Dict[str, Any] = {
+        "kdf": res.kdf,
+        "position_mode": res.position_mode,
+        "size": len(res.text.encode("utf-8")) if res.is_text else sum(len(d) for _, d in files),
+    }
     if res.is_text:
         out.update(kind="text", text=res.text)
     else:
-        out.update(kind="file", filename=res.filename, data_b64=base64.b64encode(res.data).decode("ascii"))
+        out.update(
+            kind="file",
+            files=[
+                {"filename": name, "size": len(data), "data_b64": base64.b64encode(data).decode("ascii")}
+                for name, data in files
+            ],
+        )
     return out
 
 

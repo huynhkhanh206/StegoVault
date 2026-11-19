@@ -185,3 +185,75 @@ def test_graceful_fallback_when_argon2id_is_unavailable(monkeypatch):
     assert extract(res.stego, "pw").text == "vẫn chạy"   # tự dò KDF chỉ thử scrypt
     with pytest.raises(StegoError, match="Argon2id"):
         embed(img, "x", "pw", kdf="argon2id")
+
+
+# ------------------------------------------------------------- nhiều file (bundle)
+def test_unique_names_dedups_case_insensitively_and_sanitizes():
+    assert cl.unique_names(["a.txt", "A.txt", "a.txt", "../b", None, ""]) == [
+        "a.txt", "A (2).txt", "a (3).txt", "b", "data.bin", "data (2).bin"]
+    assert cl.unique_names(["noext", "noext"]) == ["noext", "noext (2)"]
+
+
+def test_pack_files_single_file_keeps_the_old_file_format():
+    one = cl.pack_files([("x.bin", b"abc")])
+    assert one == cl.pack_payload(b"abc", cl.KIND_FILE, "x.bin") and one[0] == cl.KIND_FILE
+
+
+def test_bundle_roundtrip_preserves_order_names_and_bytes():
+    files = [("báo cáo.pdf", os.urandom(300)), ("ghi chú.txt", "xin chào".encode()), ("rỗng.bin", b""), ("báo cáo.pdf", "trùng".encode())]
+    blob = cl.pack_files(files)
+    assert blob[0] == cl.KIND_BUNDLE
+    p = cl.unpack_payload(blob)
+    assert p.is_bundle and not p.is_text
+    assert [n for n, _ in p.file_list()] == ["báo cáo.pdf", "ghi chú.txt", "rỗng.bin", "báo cáo (2).pdf"]
+    assert [d for _, d in p.file_list()] == [d for _, d in files]
+
+
+def test_bundle_is_compressed_as_a_whole():
+    blob = cl.pack_files([("a.txt", b"x" * 4000), ("b.txt", b"x" * 4000)])
+    assert blob[1] == 1 and len(blob) < 200
+    assert cl.pack_files([("a", b"x" * 4000), ("b", b"x" * 4000)], compress=False)[1] == 0
+
+
+def test_bundle_rejects_empty_and_too_many_files():
+    with pytest.raises(StegoError):
+        cl.pack_files([])
+    with pytest.raises(StegoError, match="tối đa"):
+        cl.pack_files([(f"{i}.txt", b"") for i in range(cl.MAX_FILES + 1)])
+    assert cl.unpack_payload(cl.pack_files([(f"{i}.txt", b"") for i in range(cl.MAX_FILES)])).file_list()[-1][0] == f"{cl.MAX_FILES - 1}.txt"
+
+
+def test_bundle_hostile_names_are_sanitized_on_unpack():
+    body = b""
+    for name in ("../../etc/passwd", "C:\\Windows\\evil.dll", "CON"):
+        raw = name.encode()
+        body += len(raw).to_bytes(2, "big") + raw + (1).to_bytes(4, "big") + b"x"
+    blob = bytes([cl.KIND_BUNDLE, 0]) + (3).to_bytes(2, "big") + body
+    assert [n for n, _ in cl.unpack_payload(blob).file_list()] == ["passwd", "evil.dll", "_CON"]
+
+
+@pytest.mark.parametrize("body", [
+    b"",                                                              # thiếu số file
+    (0).to_bytes(2, "big"),                                           # 0 file
+    (cl.MAX_FILES + 1).to_bytes(2, "big"),                            # quá nhiều file
+    (1).to_bytes(2, "big"),                                           # khai 1 file nhưng không có gì
+    (1).to_bytes(2, "big") + (5).to_bytes(2, "big") + b"ab",          # tên dài hơn dữ liệu còn lại
+    (1).to_bytes(2, "big") + (1).to_bytes(2, "big") + b"a" + (9).to_bytes(4, "big") + b"xy",   # kích thước vượt biên
+    (1).to_bytes(2, "big") + (1).to_bytes(2, "big") + b"a" + (1).to_bytes(4, "big") + b"x" + b"rac",  # thừa byte
+])
+def test_bundle_parser_rejects_every_malformed_layout(body):
+    with pytest.raises(DecryptionError):
+        cl.unpack_payload(bytes([cl.KIND_BUNDLE, 0]) + body)
+
+
+def test_bundle_decompression_bomb_is_refused(monkeypatch):
+    monkeypatch.setattr(cl, "MAX_PLAINTEXT", 10_000)
+    blob = cl.pack_files([("a", b"\x00" * 1_000_000), ("b", b"\x00" * 10)])
+    assert len(blob) < 2000
+    with pytest.raises(DecryptionError):
+        cl.unpack_payload(blob)
+
+
+def test_pack_payload_refuses_bundle_kind():
+    with pytest.raises(StegoError):
+        cl.pack_payload(b"x", cl.KIND_BUNDLE)

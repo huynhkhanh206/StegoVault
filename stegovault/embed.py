@@ -17,7 +17,7 @@ Ba phương pháp
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -94,7 +94,7 @@ class EmbedResult:
 
 def embed(
     cover: ImageLike,
-    message: Union[str, bytes],
+    message: Union[str, bytes, Sequence[Tuple[Optional[str], bytes]]],
     password: str,
     *,
     method: str = "matching",
@@ -105,7 +105,8 @@ def embed(
 ) -> EmbedResult:
     """Mã hóa ``message`` bằng ``password`` và giấu vào ảnh ``cover``.
 
-    ``message``: ``str`` -> tin nhắn văn bản; ``bytes`` -> một file (kèm ``filename``).
+    ``message``: ``str`` -> tin nhắn văn bản; ``bytes`` -> một file (kèm ``filename``);
+    danh sách ``(tên, bytes)`` -> một hoặc nhiều file (tên trùng được đánh số lại).
     ``rng``: chỉ ảnh hưởng tới dấu ±1 của phương pháp matching (không cần để giải mã).
     """
     if method not in METHODS:
@@ -114,13 +115,19 @@ def embed(
     flat = arr.reshape(-1)
 
     if isinstance(message, str):
-        kind, data = cl.KIND_TEXT, message.encode("utf-8")
+        data = message.encode("utf-8")
+        plain = cl.pack_payload(data, cl.KIND_TEXT, None, compress)
+        message_bytes = len(data)
     elif isinstance(message, (bytes, bytearray)):
-        kind, data = cl.KIND_FILE, bytes(message)
+        data = bytes(message)
+        plain = cl.pack_payload(data, cl.KIND_FILE, filename, compress)
+        message_bytes = len(data)
+    elif isinstance(message, (list, tuple)):
+        plain = cl.pack_files(message, compress)
+        message_bytes = sum(len(d) for _, d in message)
     else:
-        raise TypeError("message phải là str (văn bản) hoặc bytes (file).")
+        raise TypeError("message phải là str (văn bản), bytes (một file) hoặc danh sách (tên, bytes) (nhiều file).")
 
-    plain = cl.pack_payload(data, kind, filename, compress)
     cap = capacity_bytes(flat.size)
     if len(plain) > cap:
         raise CapacityError(
@@ -146,7 +153,7 @@ def embed(
         stego=new_flat.reshape(arr.shape),
         method=method,
         kdf=kdf,
-        message_bytes=len(data),
+        message_bytes=message_bytes,
         container_bytes=len(plain),
         embedded_bits=int(bits.size),
         samples_changed=changed,

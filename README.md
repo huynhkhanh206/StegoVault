@@ -4,7 +4,7 @@
 
 Dự án môn *Nhập môn An toàn thông tin*. Sinh viên: `<Họ và tên>` · MSSV: `<MSSV>` · Lớp: `<Lớp>`
 
-StegoVault mã hóa một tin nhắn hoặc một file bằng AES-256-GCM, rồi giấu bản mã vào các bit thấp nhất (LSB) của ảnh PNG.
+StegoVault mã hóa một tin nhắn, một file hoặc nhiều file cùng lúc bằng AES-256-GCM, rồi giấu bản mã vào các bit thấp nhất (LSB) của ảnh PNG.
 Điểm khác của đề tài là có thêm **phía người dò**: bộ steganalysis tự cài đặt (chi-square và RS) để đo xem từng
 cách giấu bị phát hiện ở mức nào. Vì vậy dự án trả lời được hai câu hỏi thay vì một: giấu thế nào, và giấu như thế có bị lộ không.
 
@@ -30,7 +30,7 @@ Thí nghiệm trên 72 ảnh bìa 256×256 (cắt từ 6 ảnh mẫu). Số li�
 
 ## Cài đặt và chạy nhanh
 
-Yêu cầu: Python 3 (đã kiểm thử trên 3.13). Chạy từ thư mục gốc của dự án, không cần cài đặt gói.
+Yêu cầu: Python 3 (chỉ được chạy thử trên 3.13; pip tự chọn bản thư viện hợp với Python của bạn). Chạy từ thư mục gốc của dự án, không cần cài đặt gói. Trên Windows dùng `py` thay cho `python` nếu lệnh `python` không có.
 
 ```bash
 python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
@@ -38,7 +38,7 @@ pip install -r requirements.txt
 
 python -m stegovault demo          # chạy trọn vòng giấu -> trích -> phân tích, lưu ảnh vào demo_output/
 python -m stegovault serve         # mở giao diện web tại http://127.0.0.1:8765
-python -m pytest                   # 148 test, khoảng 10 giây
+python -m pytest                   # 183 test, khoảng 12 giây
 python experiments/run_all.py      # tái tạo toàn bộ biểu đồ và bảng trong results/ (khoảng 35 giây)
 python demo/crypto_demos.py        # demo ECB so với GCM, thác lũ SHA-256, tính dễ sửa của CTR
 ```
@@ -49,8 +49,9 @@ python demo/crypto_demos.py        # demo ECB so với GCM, thác lũ SHA-256, t
 # giấu tin (mật khẩu được hỏi ẩn; hoặc đặt biến môi trường STEGOVAULT_PASSWORD)
 python -m stegovault embed   -i samples/camera.png -o bi_mat.png -m "Hẹn gặp 7h sáng" --method matching
 python -m stegovault embed   -i samples/camera.png -o bi_mat.png -f tai_lieu.pdf                # giấu một file
+python -m stegovault embed   -i samples/camera.png -o bi_mat.png -f a.pdf b.txt anh.jpg        # giấu nhiều file một lần
 python -m stegovault extract -i bi_mat.png                                                     # in tin ra màn hình
-python -m stegovault extract -i bi_mat.png -o thu_muc_dich/                                    # lấy file ra
+python -m stegovault extract -i bi_mat.png -o thu_muc_dich/                                    # lấy file ra (nhiều file: vào thư mục này)
 
 python -m stegovault capacity samples/camera.png                       # dung lượng tối đa của ảnh
 python -m stegovault compare  samples/camera.png bi_mat.png            # PSNR, SSIM, số mẫu bị đổi
@@ -59,9 +60,19 @@ python -m stegovault analyze  bi_mat.png --report bao_cao.png          # stegana
 
 Ảnh mẫu trong `samples/` (nguồn và giấy phép ở `samples/NGUON_ANH.md`) chỉ để thử. Bạn có thể dùng ảnh PNG, BMP hoặc JPG của riêng mình; ảnh đầu ra luôn là PNG.
 
+Lỗi thường gặp:
+
+| Triệu chứng | Cách xử lý |
+|---|---|
+| `No module named stegovault` | Chạy lệnh từ thư mục gốc dự án (nơi có `README.md`), không phải từ thư mục con. |
+| `No module named numpy` (hoặc `PIL`, `cryptography`, `scipy`) | Chưa cài thư viện hoặc chưa bật môi trường ảo: chạy lại `pip install -r requirements.txt` sau khi kích hoạt `.venv`. |
+| `Address already in use` khi mở giao diện web | Cổng 8765 đang bận: `python -m stegovault serve --port 8800`. |
+| Báo lỗi Argon2id | Thư viện `cryptography` cũ hơn bản 44: dùng `--kdf scrypt` (mặc định) hoặc `pip install -U cryptography`. |
+| `Không giải mã được` | Sai mật khẩu, ảnh đã bị nén/đổi kích thước/chỉnh sửa, hoặc ảnh không chứa tin. Hãy dùng đúng file PNG do bước giấu tin tạo ra. |
+
 ### Giao diện web
 
-Chạy hoàn toàn trên máy bạn (chỉ lắng nghe `127.0.0.1`), ảnh và mật khẩu không rời khỏi máy. Có 4 tab: Giấu tin, Trích xuất, Phân tích, So sánh.
+Chạy hoàn toàn trên máy bạn (chỉ lắng nghe `127.0.0.1`), ảnh và mật khẩu không rời khỏi máy. Có 4 tab: Giấu tin, Trích xuất, Phân tích, So sánh. Ở tab Giấu tin có thể chọn hoặc kéo thả nhiều file cùng lúc; ở tab Trích xuất, nhiều file lấy ra được tải riêng từng file hoặc cả bộ dưới dạng `.zip`.
 
 | Phân tích: nhúng tuần tự | Phân tích: LSB matching |
 |---|---|
@@ -78,7 +89,7 @@ GIẤU TIN
   tin (văn bản hoặc file)
      │  nén zlib (chỉ khi thật sự nhỏ hơn)
      ▼
-  gói  [loại | cờ nén | (tên file) | dữ liệu]
+  gói  [loại | cờ nén | (tên file) | dữ liệu]      (nhiều file: xem bên dưới)
      │  AES-256-GCM      khóa ← KDF(mật khẩu, salt ngẫu nhiên 16 byte)
      ▼
   nonce(12) ‖ bản mã ‖ thẻ xác thực(16)
@@ -103,6 +114,7 @@ Những quyết định thiết kế và lý do:
 - **AES-GCM là mã hóa có xác thực.** Sai mật khẩu hoặc ảnh bị sửa dù một bit đều bị từ chối. Salt và nonce lấy ngẫu nhiên từ `os.urandom` mỗi lần giấu nên không bao giờ dùng lại cặp (khóa, nonce). Salt và độ dài đã che được đưa vào dữ liệu xác thực kèm theo (AAD), nên sửa chúng cũng bị phát hiện.
 - **Không có chữ ký nhận dạng.** Không có "magic number" ở dạng rõ, kể cả trường độ dài (che bằng HMAC), nên luồng nhúng không để lộ rằng nó thuộc về công cụ này.
 - **KDF tốn bộ nhớ.** scrypt (N=2¹⁵, r=8, p=1: 32 MiB, khoảng 50 ms) hoặc Argon2id (64 MiB, 3 vòng, 4 luồng, khoảng 90 ms; thời gian đo trên máy phát triển) làm chậm việc dò mật khẩu bằng GPU. Mật khẩu được chuẩn hóa Unicode NFKC để "ế" gõ dạng dựng sẵn hay tổ hợp đều ra cùng một khóa.
+- **Nhiều file trong một gói.** Một file dùng đúng định dạng cũ; từ hai file trở lên, gói có loại riêng: `[số file (2B)]` rồi mỗi file là `[độ dài tên (2B)][tên][kích thước (4B)][dữ liệu]`, và cả gói được nén một lần. Mọi độ dài đọc từ ảnh đều bị kiểm biên (khai sai hoặc thừa byte thì bị từ chối), tối đa 256 file, tên trùng được đánh số lại ("a.txt", "a (2).txt") nên không file nào ghi đè file nào. Dung lượng được kiểm tra trên cả gói: tổng các file phải vừa với ảnh.
 - **Tên file lấy từ ảnh không được tin.** Khi trích file, tên được làm sạch (bỏ đường dẫn, ký tự cấm, tên thiết bị Windows) và có test chặn ghi ra ngoài thư mục đích. Dữ liệu giải nén bị giới hạn kích thước để chống "bom nén".
 
 ### Ba phương pháp nhúng
@@ -153,7 +165,7 @@ Về độ chính xác của ước lượng RS (đo trên 6 ảnh mẫu, sai s�
 Toàn bộ bảng và biểu đồ do `experiments/run_all.py` sinh ra trong `results/` (xem `results/RESULTS.md`), với hạt giống cố định nên chạy lại cho cùng số liệu.
 
 **Thiết kế.** 72 ảnh bìa 256×256 cắt ngẫu nhiên (12 mảnh mỗi ảnh) từ 6 ảnh mẫu. Nhúng *mô phỏng* bằng bit ngẫu nhiên đều: bản mã AES-GCM
-không phân biệt được với bit ngẫu nhiên, nên cho cùng thống kê với nhúng thật mà không tốn thời gian KDF. Ngưỡng đặt cố định theo mặc định của bộ dò. Cột "0%" là ảnh sạch, tức là **tỉ lệ dương tính giả**.
+không phân biệt được với bit ngẫu nhiên, nên cho cùng thống kê với nhúng thật mà không tốn thời gian KDF (giả định này có kiểm tra riêng ở [mục 6 của RESULTS.md](results/RESULTS.md)). Ngưỡng đặt cố định theo mặc định của bộ dò. Cột "0%" là ảnh sạch, tức là **tỉ lệ dương tính giả**.
 
 Tỉ lệ ảnh bị kết luận **"nghi cao"** (chi-square và RS cùng dương tính):
 
@@ -203,10 +215,10 @@ ECB giữ nguyên hình dạng vì các khối giống nhau cho bản mã giốn
 - **Mẫu nhỏ và không độc lập.** 72 mảnh nhưng chỉ đến từ 6 ảnh gốc. Khoảng tin cậy Wilson trong `results/` coi các mảnh là độc lập nên **lạc quan hơn thực tế**. Số liệu mang tính chỉ báo xu hướng, không đủ để kết luận chắc chắn về tỉ lệ dương tính giả ngoài thực tế. Riêng ảnh `chelsea` đóng góp toàn bộ dương tính giả của chi-square toàn ảnh (12/72).
 - **Nguyên nhân dương tính giả của chi-square chỉ được suy ra, chưa kiểm chứng.** Giả thuyết hợp lý là các ảnh này đã qua xử lý (nén, đổi kích thước) trước khi vào bộ dữ liệu nên bit thấp vốn đã nhiễu, nhưng dự án không có cách xác nhận.
 - **Một quyết định được đưa ra khi đã nhìn dữ liệu.** Tiêu chí chi-square theo tiền tố ban đầu là "p-value lớn nhất trên các điểm vượt ngưỡng"; nó tự sinh dương tính giả (so sánh nhiều lần) nên được đổi thành "chuỗi từ 3 điểm liên tiếp". Việc đổi này diễn ra khi đang xem kết quả trên chính các ảnh mẫu, nên tỉ lệ dương tính giả báo cáo có thể hơi lạc quan. Không có ngưỡng nào khác được tinh chỉnh.
-- **Nhúng mô phỏng, không phải nhúng thật.** Khác biệt về thống kê được lập luận là không có (bản mã AES-GCM là bit ngẫu nhiên), nhưng dự án không đo trực tiếp để so sánh. Phần khứ hồi thật được kiểm thử riêng (148 test, gồm cả KDF mặc định).
+- **Các thí nghiệm lớn dùng nhúng mô phỏng, không phải nhúng thật.** Giả định "bản mã AES-GCM là bit ngẫu nhiên nên cho cùng thống kê" đã được kiểm tra riêng trên 24 mảnh: nhúng thật (KDF mặc định) và mô phỏng lệch nhau tối đa 0,004 ở trung bình RS và 2 mảnh ở số lần gắn cờ, không theo một hướng nhất quán (`experiments/exp_real_vs_sim.py`, mục 6 của `results/RESULTS.md`). Đây là bằng chứng "không thấy khác biệt" trên mẫu nhỏ và hai bộ dò cổ điển, không phải chứng minh hai phân phối trùng nhau. Phần khứ hồi thật được kiểm thử riêng (183 test, gồm cả KDF mặc định).
 - **Ảnh `camera` là ảnh xám nhân thành 3 kênh**, không đại diện cho ảnh màu thật.
 - **Chỉ hỗ trợ ảnh 8-bit mỗi kênh.** Kênh alpha bị bỏ (có cảnh báo), ảnh 16-bit bị từ chối. Ảnh bìa JPEG được giải nén rồi nhúng, đầu ra luôn là PNG.
-- **Không có** phủ nhận hợp lý, nhiều tin trong một ảnh, hay sửa lỗi (một bit sai là mất cả tin, đó là chủ đích để GCM bảo vệ toàn vẹn).
+- **Không có** phủ nhận hợp lý, nhiều tin độc lập (mỗi tin một mật khẩu) trong cùng một ảnh, hay sửa lỗi (một bit sai là mất cả tin, đó là chủ đích để GCM bảo vệ toàn vẹn). Giấu nhiều file thì cả gói dùng chung một mật khẩu và được mã hóa như một khối: lấy ra là lấy được tất cả hoặc không được file nào.
 - **Máy chủ web chỉ dành cho dùng cục bộ.** Có kiểm tra Host, Content-Type, giới hạn kích thước và CSP chặt, nhưng không được thiết kế để mở ra mạng.
 
 ## Phần nào tự cài đặt, phần nào dùng thư viện
@@ -235,7 +247,7 @@ StegoVault/
 │   └── web/               máy chủ cục bộ + giao diện (index.html)
 ├── experiments/           run_all.py và 4 thí nghiệm
 ├── demo/crypto_demos.py   ECB so với GCM, thác lũ SHA-256, CTR so với GCM
-├── tests/                 148 test (pytest)
+├── tests/                 183 test (pytest)
 ├── results/               biểu đồ, bảng, CSV do thí nghiệm sinh ra (RESULTS.md)
 ├── samples/               ảnh mẫu và NGUON_ANH.md
 └── docs/                  KICH_BAN_DEMO.md và ảnh chụp giao diện

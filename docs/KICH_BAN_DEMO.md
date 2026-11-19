@@ -10,7 +10,7 @@ python -m stegovault serve                                   # giao diện web
 python -c "import secrets; print(secrets.token_urlsafe(30000))"   # sinh tin ~40.000 ký tự, khó nén, để dán vào ô tin nhắn
 ```
 
-Mở sẵn: tab giao diện, `results/detection_vs_rate.png`, `results/robustness_ber.png`, `results/ecb_vs_gcm.png`. Dùng ảnh mẫu `camera`.
+Mở sẵn: tab giao diện, `results/detection_vs_rate.png`, `results/robustness_ber.png`, `results/ecb_vs_gcm.png`. Ở ô Ảnh gốc, chọn file `samples/camera.png`.
 Tin dài khoảng 31% dung lượng là đủ lớn để bộ dò có cái để bắt. Thí nghiệm của dự án chỉ đo từ tỉ lệ nhúng 5% trở lên; với tin rất ngắn (vài chục byte, chưa tới 0,1%) bộ dò gần như không có dữ liệu để làm việc, nên đừng chọn tin quá ngắn khi minh họa sự tương phản.
 
 ## Kịch bản
@@ -65,13 +65,16 @@ Có một điểm yếu lý thuyết: vị trí này cố định và công khai
 **Vì sao chỉ dùng 1 bit LSB mỗi mẫu?**
 Dung lượng đổi lấy khả năng bị dò. Dùng 2 bit thấp tăng gấp đôi dung lượng nhưng thay đổi ảnh nhiều hơn và thường dễ bị lộ hơn; đây là hiểu biết chung chứ dự án không đo, nên đừng trình bày như một kết quả của đề tài.
 
+**Thí nghiệm dùng nhúng mô phỏng, có đáng tin không?**
+Mô phỏng nhúng bit ngẫu nhiên thay cho bản mã AES-GCM (nhanh hơn nhiều vì bỏ qua KDF). Lập luận là bản mã không phân biệt được với bit ngẫu nhiên, và dự án đã kiểm tra điều này trên 24 mảnh: nhúng thật và mô phỏng lệch nhau tối đa 0,004 ở trung bình RS và 2 mảnh ở số lần gắn cờ, không theo hướng nhất quán. Nói đúng mức: đây là "không thấy khác biệt" trên mẫu nhỏ, không phải chứng minh.
+
 **Hướng phát triển tiếp theo?**
 (1) Cài đặt bộ dò hiện đại (SPAM hoặc SRM kèm bộ phân loại) để kiểm tra lại kết luận về matching. (2) Nhúng thích nghi vào vùng nhiều chi tiết. (3) Mã sửa lỗi để chịu được một ít nhiễu. (4) Nhúng trong miền DCT của JPEG để sống sót qua nén. (5) Đo trực tiếp nhúng thật so với nhúng mô phỏng.
 
 ## Danh sách kiểm tra trước khi nộp
 
 - [ ] Điền họ tên, MSSV, lớp ở đầu `README.md`.
-- [ ] `python -m pytest` báo 148 test qua.
+- [ ] `python -m pytest` báo 183 test qua.
 - [ ] `python -m stegovault demo` chạy được; xóa thư mục `demo_output/` trước khi nén.
 - [ ] Nếu nộp video: quay theo bảng kịch bản, giữ dưới 4 phút.
 - [ ] Nếu nộp link: đẩy toàn bộ thư mục lên GitHub, nhớ có `results/` và `docs/img/` để README hiện đủ hình.
