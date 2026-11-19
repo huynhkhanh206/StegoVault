@@ -1,0 +1,11 @@
+# Thư viện chạy chương trình
+numpy
+Pillow
+cryptography>=44      # >= 44 mới có Argon2id; bản cũ hơn vẫn chạy được, công cụ tự dùng scrypt
+scipy
+
+# Chỉ cần cho `stegovault analyze --report` và thư mục experiments/, demo/
+matplotlib
+
+# Chỉ cần để chạy bộ test
+pytest

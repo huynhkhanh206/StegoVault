@@ -1,0 +1,28 @@
+attack,method,extract,ber
+Lưu lại PNG / BMP / TIFF (không mất dữ liệu),sequential,OK,0.0
+Lưu lại PNG / BMP / TIFF (không mất dữ liệu),keyed,OK,0.0
+Lưu lại PNG / BMP / TIFF (không mất dữ liệu),matching,OK,0.0
+JPEG chất lượng 100,sequential,HỎNG,0.340009
+JPEG chất lượng 100,keyed,HỎNG,0.340234
+JPEG chất lượng 100,matching,HỎNG,0.340185
+JPEG chất lượng 95,sequential,HỎNG,0.451082
+JPEG chất lượng 95,keyed,HỎNG,0.451261
+JPEG chất lượng 95,matching,HỎNG,0.451365
+JPEG chất lượng 75,sequential,HỎNG,0.453069
+JPEG chất lượng 75,keyed,HỎNG,0.453334
+JPEG chất lượng 75,matching,HỎNG,0.4534
+Thu nhỏ 99% rồi phóng lại,sequential,HỎNG,0.364296
+Thu nhỏ 99% rồi phóng lại,keyed,HỎNG,0.36451
+Thu nhỏ 99% rồi phóng lại,matching,HỎNG,0.364335
+Thêm nhiễu Gauss σ = 1,sequential,HỎNG,0.469622
+Thêm nhiễu Gauss σ = 1,keyed,HỎNG,0.469668
+Thêm nhiễu Gauss σ = 1,matching,HỎNG,0.46968
+Lật ngang ảnh,sequential,HỎNG,0.499273
+Lật ngang ảnh,keyed,HỎNG,0.499128
+Lật ngang ảnh,matching,HỎNG,0.49925
+Cắt bỏ 1 hàng và 1 cột mép,sequential,HỎNG,
+Cắt bỏ 1 hàng và 1 cột mép,keyed,HỎNG,
+Cắt bỏ 1 hàng và 1 cột mép,matching,HỎNG,
+Sửa 1 bit bản mã,sequential,HỎNG,1.272e-06
+Sửa 1 bit bản mã,keyed,HỎNG,1.272e-06
+Sửa 1 bit bản mã,matching,HỎNG,1.272e-06
